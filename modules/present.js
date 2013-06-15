@@ -31,8 +31,7 @@ exports.setup = function(bot) {
 
   bot.client.addListener('names' , function (ch,names) {
     if (ch!=bot.channel) return;
-    console.log('names for '+ch);
-    presentUsers = {};
+    bot.presentUsers = {};
     Object.keys(names).forEach(userJoin);
   });
 }

@@ -6,14 +6,16 @@ var entities = new (require('html-entities').AllHtmlEntities);
 
 var bot = {
   client: null,
-  nick: 'langbot',
-  channel: '#zocky',
-  master: 'zocky',
-  host: 'irc.freenode.net',
-  pass: '',
+  config: {
+    host: 'irc.freenode.net',
+    nick: 'langbot',
+    channel: 'langbot',
+    master: undefined,
+    pass: undefined
+  },
   report: function(a1,a2) {
     console.log(a1+':',a2);
-    if (this.present(this.master)) this.say(this.master,a1+': '+a2);
+    if (this.config.master && this.present(this.config.master)) this.say(this.config.master,a1+': '+a2);
   },
   save: function() {
     fs.writeFile('./var/botstate.json',JSON.stringify(this.state,null,2));
@@ -25,12 +27,20 @@ var bot = {
     } catch(e) {
       this.state = {};
     }
-    console.log(this.state);
+    try {
+      var str = fs.readFileSync('./etc/config.json');
+      console.log('str');
+      var cfg = JSON.parse(str);
+      for (var i in this.config) if (i in cfg) this.config[i] = cfg[i];
+    } catch(e) {
+    }
+      console.log(this.config);
   },
   init: function() {
     var me = this;
     me.load();
-    var client = me.client = new irc.Client(me.host, me.nick, {
+    
+    var client = me.client = new irc.Client(me.config.host, me.config.nick, {
         channels: [me.channel],
     //    autoRejoin: true,
         autoConnect: true,
@@ -146,8 +156,18 @@ bot.addCommand('help', {
   }
 })
 
-/*
-  present users
-*/
+process.on('SIGINT', function () {
+  console.log('disconnecting');
+  bot.client.disconnect('deadness ensues', function() {
+    setTimeout(function() {
+      console.log('disconnected, shutting down');
+      process.exit(); 
+    },3000);
+  });
+});
 
+if(process.argv[2] != 'test') process.on('uncaughtException', function(err) {
+  console.log(err.stack);
+  bot.report('exception',err);
+});
 

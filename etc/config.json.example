@@ -1,0 +1,7 @@
+{
+  "host": "irc.freenode.net",
+  "nick": "botnick",
+  "pass": "pass",
+  "channel": "#channel",
+  "master": "yournick"
+}

@@ -1,7 +1,7 @@
 exports.setup = function(bot) {
   var userJoin = function(nick) {
     if (nick==bot.client.nick) {
-      console.log('joined '+bot.channel)
+      console.log('joined '+bot.config.channel)
     } else {
       bot.presentUsers[nick] = true;
     }
@@ -20,17 +20,17 @@ exports.setup = function(bot) {
   },
 
 
-  bot.client.addListener('join' + bot.channel, function (nick) {
+  bot.client.addListener('join' + bot.config.channel, function (nick) {
     userJoin(nick);
   });
 
-  bot.client.addListener('part' + bot.channel, userPart);
-  bot.client.addListener('kick' + bot.channel, userPart);
+  bot.client.addListener('part' + bot.config.channel, userPart);
+  bot.client.addListener('kick' + bot.config.channel, userPart);
   bot.client.addListener('quit', userPart);
   bot.client.addListener('nick', userRename);
 
   bot.client.addListener('names' , function (ch,names) {
-    if (ch!=bot.channel) return;
+    if (ch!=bot.config.channel) return;
     bot.presentUsers = {};
     Object.keys(names).forEach(userJoin);
   });

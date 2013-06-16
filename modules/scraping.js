@@ -61,6 +61,7 @@ exports.setup = function(bot) {
     usage: '.ety [search terms]',
     help: 'search etymology online',
     action: function(from,respond,text) {
+      if (!text) return respond ('You gave me zero input');
       bot.wget('http://www.etymonline.com/index.php', {
         term:text
       }, function(error,response,body,url) {
@@ -72,10 +73,28 @@ exports.setup = function(bot) {
     }
   })
 
+  bot.addCommand('urban', {
+    usage: '.urban [search terms]',
+    help: 'search urban dictionary',
+    action: function(from,respond,text) {
+      if (!text) return respond ('You gave me zero input');
+      bot.wget('http://www.urbandictionary.com/define.php', {
+        term:text
+      }, function(error,response,body,url) {
+        if (error) return respond('error',String(error));
+        
+        var m = body.match(/<td class='word'[^>]*>\s*<span>([\s\S]*?)<\/span>[\s\S]*?<div class="definition">([\s\S]*?)<\/div>/im);
+        if (!m) return respond('not found '+url);
+        respond((m[1].trim() + ': ' + m[2]).replace(/<.*?>/g,' ').replace(/\s+/g,' ').trim().substr(0,300) + ' | '+ url);
+      });
+    }
+  })
+
   bot.addCommand('c', {
     usage: '.c [expression]',
     help: 'google calculator',
     action: function(from,respond,text) {
+      if (!text) return respond ('You gave me zero input');
       bot.wget('http://www.google.com/ig/calculator', {
         q:text
       }, function(error,response,body,url) {

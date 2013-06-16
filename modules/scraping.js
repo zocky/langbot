@@ -85,7 +85,7 @@ exports.setup = function(bot) {
         
         var m = body.match(/<td class='word'[^>]*>\s*<span>([\s\S]*?)<\/span>[\s\S]*?<div class="definition">([\s\S]*?)<\/div>/im);
         if (!m) return respond('not found '+url);
-        respond((m[1].trim() + ': ' + m[2]).replace(/<.*?>/g,' ').replace(/\s+/g,' ').trim().substr(0,300) + ' | '+ url);
+        respond((bot.dehtml(m[1].trim() + ': ' + m[2]).replace(/<.*?>/g,' ').replace(/\s+/g,' ')).trim().substr(0,300) + ' | '+ url);
       });
     }
   })

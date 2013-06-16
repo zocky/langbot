@@ -49,7 +49,7 @@ var bot = {
     });
 
     client.addListener('registered' , function (ch,names) {
-//      if (me.pass) me.client.say('NickServ','IDENTIFY '+me.pass);
+      if (me.config.pass) me.client.say('NickServ','IDENTIFY '+me.config.pass);
     });
     
     client.addListener('error', me.report.bind(this,'error'));

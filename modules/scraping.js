@@ -47,7 +47,7 @@ exports.setup = function(bot) {
       var searchlang='en';
       var searchterms='';
       var m = text.match(/^:([a-z][a-z][a-z]?)\s(.*)$/);
-      if(m) searchlang=m[1], searchterms=[2];
+      if(m) searchlang=m[1], searchterms=m[2];
       else searchterms=text;
       bot.wget('http://'+searchlang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=300|&gsrlimit=1&format=json',{
         gsrsearch:searchterms,

@@ -14,7 +14,7 @@ var bot = {
     pass: undefined
   },
   report: function(a1,a2) {
-    console.log(a1+':',a2);
+    console.log(this.config.master,a1+':',a2);
     if (this.config.master && this.present(this.config.master)) this.say(this.config.master,a1+': '+a2);
   },
   save: function() {
@@ -41,7 +41,7 @@ var bot = {
     me.load();
     
     var client = me.client = new irc.Client(me.config.host, me.config.nick, {
-        channels: [me.channel],
+        channels: [me.config.channel],
     //    autoRejoin: true,
         autoConnect: true,
         floodProtection: true,
@@ -59,10 +59,10 @@ var bot = {
     });
 
     client.addListener('invite', function (ch) {
-      if (ch == me.channel) client.join(me.channel);
+      if (ch == me.config.channel) client.join(me.config.channel);
     });
 
-    me.client.addListener('message'+me.channel,function (from, message) {
+    me.client.addListener('message'+me.config.channel,function (from, message) {
       if (from == me.client.nick) return;
       var re = new RegExp('^('+ me.client.nick + '[,:>]\s*|[.])(.*)$','i');
       var m = message.match(re);
@@ -73,7 +73,7 @@ var bot = {
           });
         } else {
           me.doMessage(from,m[2].trim(),function(reply) {
-            me.say(me.channel,from+': '+reply);
+            me.say(me.config.channel,from+': '+reply);
           });
         }
       } else {
@@ -92,7 +92,7 @@ var bot = {
   },
   say: function(a1,a2) {
     if (arguments.length == 1) {
-      this.client.say(this.channel,a1);
+      this.client.say(this.config.channel,a1);
     } else if (arguments.length == 2) {
       this.client.say(a1,a2);
     }
@@ -156,18 +156,5 @@ bot.addCommand('help', {
   }
 })
 
-process.on('SIGINT', function () {
-  console.log('disconnecting');
-  bot.client.disconnect('deadness ensues', function() {
-    setTimeout(function() {
-      console.log('disconnected, shutting down');
-      process.exit(); 
-    },3000);
-  });
-});
 
-if(process.argv[2] != 'test') process.on('uncaughtException', function(err) {
-  console.log(err.stack);
-  bot.report('exception',err);
-});
 

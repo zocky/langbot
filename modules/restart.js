@@ -29,5 +29,20 @@ exports.setup = function(bot) {
   bot.client.addListener('raw' + bot.config.channel, function (nick) {
     setRestartTimer();
   });
+  
+  process.on('SIGINT', function () {
+    console.log('disconnecting');
+    bot.client.disconnect('deadness ensues', function() {
+      setTimeout(function() {
+        console.log('disconnected, shutting down');
+        process.exit(); 
+      },3000);
+    });
+  });
+
+  if(process.argv[2] != 'test') process.on('uncaughtException', function(err) {
+    console.log(err.stack);
+    bot.report('exception',err);
+  });
 }
 

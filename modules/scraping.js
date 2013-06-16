@@ -35,7 +35,7 @@ exports.setup = function(bot) {
         if(response.headers['content-type'].substr(0,9)!='text/html') return respond('content-type: '+response.headers['content-type']);
         var m = body.match(/<title\s*>\s*(.*?)\s*<\/title\s*>/i);
         if(!m) return respond('could not find title at '+ url);
-        return respond(m[1].trim() + ' | ' + url );
+        return respond(bot.dehtml(m[1]).trim() + ' | ' + url );
       });
     }
   })
@@ -52,7 +52,7 @@ exports.setup = function(bot) {
         if (!obj.query || !obj.query.pages) return respond('nothing found');
         var id = Object.keys(obj.query.pages)[0];
         var str = obj.query.pages[id].extract.replace(/<.*?>/g,' ').replace(/\s+/g,' ').trim();
-        respond(str + ' | ' + obj.query.pages[id].fullurl);
+        respond(bot.dehtml(str) + ' | ' + obj.query.pages[id].fullurl);
       });
     }
   })
@@ -68,7 +68,7 @@ exports.setup = function(bot) {
         if (error) return respond('error',String(error));
         var m = body.match(/<div id="dictionary">[\s\S]*?(<dt[\s\S]+?<\/dd>)/im);
         if (!m) return respond('not found '+url);
-        respond(m[1].replace(/<.*?>/g,' ').replace(/\s+/g,' ').trim().substr(0,300) + ' | '+ url);
+        respond(bot.dehtml(m[1].replace(/<.*?>/g,' ').replace(/\s+/g,' ')).trim().substr(0,300) + ' | '+ url);
       });
     }
   })
@@ -290,19 +290,20 @@ exports.setup = function(bot) {
             ret.push(
               wc 
             + ' '
-            + n.text
-            .replace(/\s+/g,' ')
-            .replace(/<span style="color: #777777;">.*?<\/span>/g,'')
-            .replace(/<dl\b[^>]*>.*?<\/dl\b[^>]*>/g,'')
-            .replace(/<dd\b[^>]*>.*?<\/dd\b[^>]*>/g,'')
-            .replace(/<dt\b[^>]*>.*?<\/dt\b[^>]*>/g,'')
-            .replace(/<h3\b[^>]*>.*?<\/h3\b[^>]*>/g,'')
-            .replace(/<table\b[^>]*>.*?<\/table\b[^>]*>/g,'')
-//            .replace(/<strong\b[^>]*>(.*?)<\/strong\b[^>]*>/g,'$1')
-//            .replace(/<b>(.*?)<\/b>/g,'$1')
-            .replace(/<.*?>/g,'')
-            .replace(/\s+/g,' ')
-            .trim());
+            + bot.dehtml(n.text
+              .replace(/\s+/g,' ')
+              .replace(/<span style="color: #777777;">.*?<\/span>/g,'')
+              .replace(/<dl\b[^>]*>.*?<\/dl\b[^>]*>/g,'')
+              .replace(/<dd\b[^>]*>.*?<\/dd\b[^>]*>/g,'')
+              .replace(/<dt\b[^>]*>.*?<\/dt\b[^>]*>/g,'')
+              .replace(/<h3\b[^>]*>.*?<\/h3\b[^>]*>/g,'')
+              .replace(/<table\b[^>]*>.*?<\/table\b[^>]*>/g,'')
+  //            .replace(/<strong\b[^>]*>(.*?)<\/strong\b[^>]*>/g,'$1')
+  //            .replace(/<b>(.*?)<\/b>/g,'$1')
+              .replace(/<.*?>/g,'')
+              .replace(/\s+/g,' ')
+              .trim())
+            );
           }
         })
         return respond (ret.join (' | ').substr(0,500));

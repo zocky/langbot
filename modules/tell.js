@@ -1,12 +1,14 @@
-var userMemos = {};
 
 exports.setup = function(bot) {
+  bot.state.tell =  bot.state.tell || {};
+
   bot.listen(function (from, message) {
-    if (userMemos[from] && userMemos[from].length) {
-      userMemos[from].forEach(function(n) {
+    if (bot.state.tell[from] && bot.state.tell[from].length) {
+      bot.state.tell[from].forEach(function(n) {
         bot.say(n);
       })
-      userMemos[from]=[];
+      bot.state.tell[from]=[];
+      bot.save();
     }
   });
   
@@ -18,8 +20,9 @@ exports.setup = function(bot) {
       if (nick == bot.client.nick) return respond ('I hear you.');
       if (nick == from) return respond ('tell yourself yourself.');
     
-      userMemos[nick] = userMemos[nick] || [];
-      userMemos[nick].push('<'+from+'> ' + text);
+      bot.state.tell[nick] = bot.state.tell[nick] || [];
+      bot.state.tell[nick].push('<'+from+'> ' + text);
+      bot.save();
       return respond('I will pass it on when '+nick+' is around.');
     }
   })

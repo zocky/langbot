@@ -1,6 +1,8 @@
+var fs = require('fs');
 var irc = require('irc');
 var request = require('request');
 var qs = require('querystring');
+var entities = new (require('html-entities').AllHtmlEntities);
 
 var bot = {
   client: null,
@@ -13,8 +15,21 @@ var bot = {
     console.log(a1+':',a2);
     if (this.present(this.master)) this.say(this.master,a1+': '+a2);
   },
+  save: function() {
+    fs.writeFile('./var/botstate.json',JSON.stringify(this.state,null,2));
+  },
+  load: function() {
+    try {
+      var str = fs.readFileSync('./var/botstate.json');
+      this.state = JSON.parse(str);
+    } catch(e) {
+      this.state = {};
+    }
+    console.log(this.state);
+  },
   init: function() {
     var me = this;
+    me.load();
     var client = me.client = new irc.Client(me.host, me.nick, {
         channels: [me.channel],
     //    autoRejoin: true,
@@ -61,6 +76,9 @@ var bot = {
         me.say(from,reply);
       });
     });
+  },
+  dehtml: function(str) {
+    return entities.decode(str);
   },
   say: function(a1,a2) {
     if (arguments.length == 1) {

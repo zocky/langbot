@@ -42,9 +42,15 @@ var bot = {
       var re = new RegExp('^('+ me.client.nick + '[,:>]\s*|[.])(.*)$','i');
       var m = message.match(re);
       if (m) {
-        me.doMessage(from,m[2].trim(),function(reply) {
-          me.say(me.channel,from+': '+reply);
-        });
+        if(m[1] == '.') {
+          me.doMessage(from,m[2].trim(),function(reply) {
+            me.say(reply);
+          });
+        } else {
+          me.doMessage(from,m[2].trim(),function(reply) {
+            me.say(me.channel,from+': '+reply);
+          });
+        }
       } else {
         for (var i in me.listeners) me.listeners[i](from,message);
       }
@@ -108,6 +114,19 @@ require('./modules/present.js').setup(bot);
 require('./modules/restart.js').setup(bot);
 require('./modules/tell.js').setup(bot);
 require('./modules/scraping.js').setup(bot);
+
+bot.addCommand('help', {
+  usage: 'help, help [command]',
+  help: 'displays a list of commands, or help for a specific command',
+  action: function(from,respond,text,cmd) {
+    if (!cmd) return respond(
+      Object.keys(bot.commands)
+      .join(', ')
+    );
+    if (!bot.commands[cmd]) return respond ('unknown command '+cmd +', try .help');
+    return respond ( bot.commands[cmd].usage + ' | ' + bot.commands[cmd].help);
+  }
+})
 
 /*
   present users

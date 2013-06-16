@@ -11,7 +11,7 @@ exports.setup = function(bot) {
   });
   
   bot.addCommand('tell', {
-    usage: 'nick message',
+    usage: '.tell [nick] [message]',
     help: 'Leave a message for a user',
     action: function(from,respond,text,nick) {
       if (!nick) return;

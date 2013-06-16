@@ -18,7 +18,7 @@ exports.setup = function(bot) {
   }
 
   setInterval(function(){
-    bot.client.send('ping',bot.channel);
+    bot.client.send('ping',bot.config.channel);
   }, 10 * 60 * 1000);
 
   function setRestartTimer() {
@@ -26,7 +26,7 @@ exports.setup = function(bot) {
     restartTimer = setTimeout(restartBot,15*60*1000);
   }
 
-  bot.client.addListener('raw' + bot.channel, function (nick) {
+  bot.client.addListener('raw' + bot.config.channel, function (nick) {
     setRestartTimer();
   });
 }

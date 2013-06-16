@@ -44,8 +44,12 @@ exports.setup = function(bot) {
     usage: '.wik [search terms]',
     help: 'get a definition from wikipedia',
     action: function(from,respond,text) {
-      bot.wget('http://en.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=300|&gsrlimit=1&format=json',{
-        gsrsearch:text,
+      var searchlang='en';
+      var searchterms='';
+      var m = text.match(/^:([a-z][a-z][a-z]?)\s(.*)$/);
+      if(m) { searchlang=m[0]; searchterms=[1]; } else { searchterms=text; }
+      bot.wget('http://'+searchlang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=300|&gsrlimit=1&format=json',{
+        gsrsearch:searchterms,
       }, function(error,response,body) {
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }

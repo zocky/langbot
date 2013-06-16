@@ -3,5 +3,6 @@
   "nick": "botnick",
   "pass": "pass",
   "channel": "#channel",
-  "master": "yournick"
+  "master": "yournick",
+  "key_weather": "your weather underground API key"
 }

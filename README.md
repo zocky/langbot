@@ -4,7 +4,7 @@ langbot
 An IRC bot in node.js
 
 commands
-========
+--------
 
     .help
 show a list of commands
@@ -49,7 +49,7 @@ weather forecast from weather underground
 leave a message for a user
 
 API
-===
+---
 
     exports.setup = function(bot) {
       bot.listen(function(from,msg) {

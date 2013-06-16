@@ -155,7 +155,7 @@ exports.setup = function(bot) {
         var n = obj.geonames[0];
         var loc = Number(n.lat).toFixed(5)+','+Number(n.lng).toFixed(5);
 
-        bot.wget('http://api.wunderground.com/api/0134cfe74d723b0e/geolookup/conditions/forecast/q/'+loc+'.json', function(error,response,body,url) {
+        bot.wget('http://api.wunderground.com/api/'+bot.config.key_weather+'/geolookup/conditions/forecast/q/'+loc+'.json', function(error,response,body,url) {
           if (error) return respond('error: '+ String(error));
           try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
 

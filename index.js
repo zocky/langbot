@@ -31,7 +31,7 @@ var bot = {
       var str = fs.readFileSync('./etc/config.json');
       console.log('str');
       var cfg = JSON.parse(str);
-      for (var i in this.config) if (i in cfg) this.config[i] = cfg[i];
+      for (var i in cfg) this.config[i] = cfg[i];
     } catch(e) {
     }
       console.log(this.config);

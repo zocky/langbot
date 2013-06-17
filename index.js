@@ -141,9 +141,10 @@ var bot = {
 }
 bot.init();
 require('./modules/present.js').setup(bot);
-require('./modules/restart.js').setup(bot);
 require('./modules/tell.js').setup(bot);
+require('./modules/seen.js').setup(bot);
 require('./modules/scraping.js').setup(bot);
+require('./modules/restart.js').setup(bot);
 
 bot.addCommand('help', {
   usage: 'help, help [command]',

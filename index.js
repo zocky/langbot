@@ -1,3 +1,4 @@
+require('./lib/utils.js');
 var fs = require('fs');
 var irc = require('irc');
 var request = require('request');
@@ -43,6 +44,7 @@ var bot = {
     var client = me.client = new irc.Client(me.config.host, me.config.nick, {
         channels: [me.config.channel],
     //    autoRejoin: true,
+        userName: 'langbot',
         autoConnect: true,
         floodProtection: true,
         floodProtectionDelay: 150,
@@ -81,7 +83,7 @@ var bot = {
       }
     });
     bot.client.addListener('pm', function (from, message) {
-      if (!me.present(from)) return me.say(from,"Join "+channel+" and then we'll talk.");
+      if (!me.present(from)) return me.say(from,"Join "+bot.config.channel+" and then we'll talk.");
       me.doMessage(from,message,function(reply) {
         me.say(from,reply);
       });

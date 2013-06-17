@@ -21,7 +21,7 @@ exports.setup = function(bot) {
       if (nick == from) return respond ('tell yourself yourself.');
     
       bot.state.tell[nick] = bot.state.tell[nick] || [];
-      bot.state.tell[nick].push('<'+from+'> ' + text.replace(/\s/,': '));
+      bot.state.tell[nick].push('<'+from+'> tell ' + text.replace(/\s/,' '));
       bot.save();
       return respond('I will pass that on when '+nick+' is around.');
     }

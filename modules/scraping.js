@@ -1,18 +1,4 @@
 
-Object.defineProperty(Array.prototype,'unique', {
-  enumerable: false,
-  value :function() {
-    var u = {}, a = [];
-    for(var i = 0, l = this.length; i < l; ++i){
-      if(u.hasOwnProperty(this[i])) {
-         continue;
-      }
-      a.push(this[i]);
-      u[this[i]] = 1;
-    }
-    return a;
-  }
-});
 
 var lastUrl = [];
 
@@ -33,9 +19,9 @@ exports.setup = function(bot) {
       bot.wget(url, function (error, response, body) {
         if (error) return respond('error: '+String(error));
         if(response.headers['content-type'].substr(0,9)!='text/html') return respond('content-type: '+response.headers['content-type']);
-        var m = body.match(/<title\s*>\s*(.*?)\s*<\/title\s*>/i);
-        if(!m) return respond('could not find title at '+ url);
-        return respond(bot.dehtml(m[1]).trim() + ' | ' + url );
+        
+        var title = body.extract(/<title\s*>\s*(.*?)\s*<\/title\s*>/i,'$1').htmldecode() || 'could not find title';
+        return respond(title + ' | ' + url );
       });
     }
   })
@@ -229,7 +215,7 @@ exports.setup = function(bot) {
       var sl = 'auto',tl='en';
       var m = langs.match(/^(\w+)-(\w+)$/);
       if (m) sl = m[1], tl=m[2], text = text.replace(/^\S+\s+/,'');
-      bot.wget('http://translate.google.com/translate_a/t?client=t&hl=en&otf=1&ssel=0&tsel=0&uptl=en&sc=1', {
+      bot.wget('http://translate.google.com/translate_a/t?client=t&hl=en&otf=1&ssel=0&tsel=0&uptl=en&sc=1&oe=utf-8&ie=utf-8', {
         text:text,
         sl:sl,
         tl:tl,
@@ -256,7 +242,7 @@ exports.setup = function(bot) {
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
         if (!obj.responseData || !obj.responseData.results || !obj.responseData.results[0]) return respond('nothing found');
         var n = obj.responseData.results[0];
-        return respond(n.unescapedUrl + ' | ' + n.titleNoFormatting + ' | ' + n.content.replace(/\s+/g,' ').replace(/<b>(.*?)<\/b>/g,'$1'));
+        return respond(n.unescapedUrl + ' | ' + bot.dehtml(n.titleNoFormatting) + ' | ' + bot.dehtml(n.content.replace(/\s+/g,' ').replace(/<b>(.*?)<\/b>/g,'$1')));
       });
     }
   })

@@ -86,7 +86,7 @@ exports.setup = function(bot) {
     help: 'google calculator',
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
-      bot.wget('http://www.google.com/ig/calculator', {
+      bot.wget('http://www.google.com/ig/calculator?ie=utf-8&oe-utf-8', {
         q:text
       }, function(error,response,body,url) {
         if (error) return respond('error: ' +String(error));

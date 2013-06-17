@@ -52,7 +52,7 @@ exports.setup = function(bot) {
     usage: '.ety [search terms]',
     help: 'search etymology online',
     action: function(from,respond,text) {
-      if (!text) return respond ('You gave me zero input');
+      if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.etymonline.com/index.php', {
         term:text
       }, function(error,response,body,url) {
@@ -68,7 +68,7 @@ exports.setup = function(bot) {
     usage: '.urban [search terms]',
     help: 'search urban dictionary',
     action: function(from,respond,text) {
-      if (!text) return respond ('You gave me zero input');
+      if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.urbandictionary.com/define.php', {
         term:text
       }, function(error,response,body,url) {
@@ -85,7 +85,7 @@ exports.setup = function(bot) {
     usage: '.c [expression]',
     help: 'google calculator',
     action: function(from,respond,text) {
-      if (!text) return respond ('You gave me zero input');
+      if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.google.com/ig/calculator', {
         q:text
       }, function(error,response,body,url) {
@@ -170,7 +170,7 @@ exports.setup = function(bot) {
     usage: '.u [search terms]',
     help: 'lookup unicode table',
     action: function(from,respond,text) {
-      if (!text) return respond ('You gave me zero input');
+      if (!text) return respond ('You gave me zero length input.');
       var re = /<a.*?>(.*?)<\/a>.*?<a.*?>U\+(.*?)<\/a><\/td>.*?<td>(.*?)<\/td>/;
       
       
@@ -302,5 +302,21 @@ exports.setup = function(bot) {
     }
   })
 
-
+  bot.addCommand('imdb', {
+    usage: '.imdb [movie]',
+    help: 'get information about a movie on imdb',
+    action: function(from,respond,text) {
+      if (!text) {
+        return respond('You gave me zero length input.');
+      }
+      bot.wget('http://www.imdbapi.com/', {
+          t:text
+        }, function (error, response, body) {
+        if (error) return respond('error: '+String(error));
+        try { var obj = JSON.parse(body); } catch(e) { return('error: ' + String(e)); }
+        if (!obj.Title) return respond('nothing found ');
+        return respond( obj.Title + ' (' + obj.Year + ')' + ' | ' + obj.imdbRating + ' | ' + 'http://imdb.com/title/' + obj.imdbID + ' | ' + obj.Plot );
+      });
+    }
+  })
 };

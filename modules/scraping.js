@@ -272,32 +272,19 @@ exports.setup = function(bot) {
         s.forEach(function(n) {
           if (n.toclevel == 1) {
             lang = n.line;
-            ret.push(lang);
+            ret.push(ret.length ? '| '+lang : lang);
             return;
           }
           if (n.toclevel >= 2) {
             var wc = wordClasses[n.line.toLowerCase()];
             if (!wc) return;
-            ret.push(
-              wc 
-            + ' '
-            + bot.dehtml(n.text
-              .replace(/\s+/g,' ')
-              .replace(/<span style="color: #777777;">.*?<\/span>/g,'')
-              .replace(/<dl\b[^>]*>.*?<\/dl\b[^>]*>/g,'')
-              .replace(/<dd\b[^>]*>.*?<\/dd\b[^>]*>/g,'')
-              .replace(/<dt\b[^>]*>.*?<\/dt\b[^>]*>/g,'')
-              .replace(/<h3\b[^>]*>.*?<\/h3\b[^>]*>/g,'')
-              .replace(/<table\b[^>]*>.*?<\/table\b[^>]*>/g,'')
-  //            .replace(/<strong\b[^>]*>(.*?)<\/strong\b[^>]*>/g,'$1')
-  //            .replace(/<b>(.*?)<\/b>/g,'$1')
-              .replace(/<.*?>/g,'')
-              .replace(/\s+/g,' ')
-              .trim())
-            );
+            var meanings = n.text.htmlfind('li').map(function(n,i) {
+              return (i+1) + '. '+ n.htmlremove('dl').htmlremove('ul').htmlstrip();
+            });
+            ret.push (wc + ' ' + meanings.join(' ')+';');
           }
         })
-        return respond (ret.join (' | ').substr(0,500));
+        return respond (ret.join (' ').substr(0,500));
       });
     }
   })

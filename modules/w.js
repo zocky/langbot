@@ -2,13 +2,16 @@ var data = require('./w.data.js');
 
 exports.setup = function(bot) {
   bot.addCommand('w', {
-    usage: '.w [word]',
+    usage: '.w [word], .w [lang]: [word]',
     help: 'get a definition from wiktionary',
-    action: function(from,respond,text) {
+    args: /^(?:([\w\-]+):\s*)?(.*)$/,
+    action: function(from,respond,lang,text) {
+      if (lang && !data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
+      
       bot.wget('http://en.wiktionary.org/w/api.php?action=mobileview&sections=all&format=json',{
         page:text,
       }, function(error,response,body) {
-      
+
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
         if (!obj.mobileview || !obj.mobileview.sections) return respond('nothing found');
@@ -21,22 +24,25 @@ exports.setup = function(bot) {
           'romanization':'rom.','proverb':'proverb'
         };
         var ret = [];
-        var lang = '';
+        var curlang = false;
         var s = obj.mobileview.sections;
         s.forEach(function(n) {
           if (n.toclevel == 1) {
-            lang = n.line;
-            ret.push(ret.length ? '| '+lang : lang);
+            if (!lang || data.languages[lang] && data.languages[lang].names.indexOf(n.line)>-1) {
+              curlang = n.line;
+              ret.push(ret.length ? '| ' + curlang : curlang);
+            } else {
+              curlang = false;
+            }
             return;
           }
-          if (n.toclevel >= 2) {
-            var wc = wordClasses[n.line.toLowerCase()];
-            if (!wc) return;
-            var meanings = n.text.htmlfind('li').map(function(n,i) {
-              return (i+1) + '. '+ n.htmlremove('dl').htmlremove('ul').htmlstrip();
-            });
-            ret.push (wc + ' ' + meanings.join(' ')+';');
-          }
+          if (!curlang) return;
+          var wc = wordClasses[n.line.toLowerCase()];
+          if (!wc) return;
+          var meanings = n.text.htmlfind('li').map(function(n,i) {
+            return (i+1) + '. '+ n.htmlremove('dl').htmlremove('ul').htmlstrip();
+          });
+          ret.push (wc + ' ' + meanings.join(' ')+';');
         })
         return respond (ret.join (' ').substr(0,500));
       });

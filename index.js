@@ -113,11 +113,12 @@ var bot = {
       var m = msg.replace(/^\S*\s*/,'').match(cmd.args);
       if (!m) return respond ('bad args: '+msg);
       var args = Array.prototype.slice.call(m,1);
-      console.log(args);
+      console.log('re',args);
     } else {
       var text = m[2].trim();
       var args = text.split(/\s+/);
       args.unshift(text);
+      console.log('nore',args);
     }
     args.unshift(respond);
     args.unshift(from);

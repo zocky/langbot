@@ -40,7 +40,7 @@ exports.setup = function(bot) {
     });
   });
 
-  if(process.argv[2] != 'test') process.on('uncaughtException', function(err) {
+  process.on('uncaughtException', function(err) {
     console.log(err.stack);
     bot.report('exception',err);
   });

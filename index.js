@@ -30,7 +30,6 @@ var bot = {
     }
     try {
       var str = fs.readFileSync('./etc/config.json');
-      console.log('str');
       var cfg = JSON.parse(str);
       for (var i in cfg) this.config[i] = cfg[i];
     } catch(e) {
@@ -71,11 +70,12 @@ var bot = {
       if (m) {
         if(m[1] == '.') {
           me.doMessage(from,m[2].trim(),function(reply) {
+            console.log('respond',reply);
             me.say(reply);
           });
         } else {
           me.doMessage(from,m[2].trim(),function(reply) {
-            me.say(me.config.channel,from+': '+reply);
+            me.say(from+': '+reply);
           });
         }
       } else {
@@ -95,6 +95,7 @@ var bot = {
   say: function(a1,a2) {
     if (arguments.length == 1) {
       this.client.say(this.config.channel,a1);
+      console.log('say',a1);
     } else if (arguments.length == 2) {
       this.client.say(a1,a2);
     }
@@ -103,25 +104,81 @@ var bot = {
   listen: function(fn) {
     this.listeners.push(fn);
   },
+  pending: {},
+  _pending: {},
+  _print: function(nick,text) {
+    text = String(text).clean().shorten(440);
+    var pending = this.pending[nick];
+    switch(pending[pending.length-1]) {
+    case '':
+      break;
+    case '<nobr>':
+      pending.pop();
+      pending.push(pending.pop() + ' ' + text);
+      break;
+    default:
+      pending.push(text);
+    }
+  },
+  print: function(nick) {
+    for (var i = 1; i < arguments.length; i++) this._print(nick,arguments[i]);
+  },
+  clear: function(nick) {
+    this.pending[nick] = [];
+  },
+  more: function(nick, respond) {
+    var pending = this.pending[nick];
+    
+    if (!pending) return respond ('nothing in your queueueue');
+
+    if (!pending.length) return respond('EOF');
+    var i = 1;
+    while (pending[0] == '<br>') pending.shift();
+    var out = [pending.shift()];
+    while (pending.length) {
+      if (pending[0]=='<br>') {
+        pending.shift();
+        break;
+      }
+      if (out.join(' ').length + pending[0].length + 1 > 450) break;
+      out.push(pending.shift());
+    }
+    var text = out.join(' ');
+    while(pending[pending.length-1] == '<nobr>') pending.pop();
+    if (pending.length) {
+      text+=' ... [.more]';
+      pending[0] = '... ' + pending[0];
+      console.log(this.pending[nick]);
+    }
+    respond(text);    
+  },
   doMessage: function(from,msg,respond) {
     var m = msg.match(/^(\w+)(.*)$/);
     if (!m) return;
     var cmd = this.commands[m[1]];
     if (!cmd) return;
     if (cmd.args instanceof RegExp) {
-      console.log(cmd.args);
+//      console.log(cmd.args);
       var m = msg.replace(/^\S*\s*/,'').match(cmd.args);
       if (!m) return respond ('bad args: '+msg);
       var args = Array.prototype.slice.call(m,1);
-      console.log('re',args);
+//      console.log('re',args);
     } else {
       var text = m[2].trim();
       var args = text.split(/\s+/);
       args.unshift(text);
-      console.log('nore',args);
+//      console.log('nore',args);
     }
+    var me = this;
+    var pending = me.pending[from];
+    respond.print = me.print.bind(me,from);
+    respond.flush = me.more.bind(me,from,respond);
+    
     args.unshift(respond);
     args.unshift(from);
+
+    me._pending[from] = (me.pending[from]||[]).concat();
+    me.pending[from] = [];
     cmd.action.apply(this,args);
   },
   present: function() { return false }, //overriden in modules/users.js
@@ -166,6 +223,15 @@ bot.addCommand('help', {
     );
     if (!bot.commands[cmd]) return respond ('unknown command '+cmd +', try .help');
     return respond ( bot.commands[cmd].usage + ' | ' + bot.commands[cmd].help);
+  }
+})
+
+bot.addCommand('more', {
+  usage: '.more',
+  help: "show more results from your last search",
+  action: function(from,respond) {
+    bot.pending[from] = bot._pending[from].concat();
+    bot.more(from,respond);
   }
 })
 

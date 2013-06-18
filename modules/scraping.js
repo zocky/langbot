@@ -35,15 +35,20 @@ exports.setup = function(bot) {
       var m = text.match(/^:([a-z][a-z][a-z]?)\s(.*)$/);
       if(m) searchlang=m[1], searchterms=m[2];
       else searchterms=text;
-      bot.wget('http://'+searchlang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=300|&gsrlimit=1&format=json',{
+      bot.wget('http://'+searchlang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=500&format=json',{
+        exlimit: 'max',
+        exintro: '1',
         gsrsearch:searchterms,
       }, function(error,response,body) {
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
         if (!obj.query || !obj.query.pages) return respond('nothing found');
-        var id = Object.keys(obj.query.pages)[0];
-        var str = obj.query.pages[id].extract.replace(/<.*?>/g,' ').replace(/\s+/g,' ').trim();
-        respond(bot.dehtml(str) + ' | ' + obj.query.pages[id].fullurl);
+        for (var id in obj.query.pages) {
+          var p = obj.query.pages[id];
+          console.log(p);
+          respond.print(p.extract.htmlstrip().shorten(450),'<br>');
+        };
+        respond.flush();
       });
     }
   })

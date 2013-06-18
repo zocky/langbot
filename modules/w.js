@@ -21,30 +21,46 @@ exports.setup = function(bot) {
           'preposition' : 'prep.','conjunction' : 'conj.','particle':'part.','interjection':'intj.',
           'proper noun': 'prop. n.','article':'art.','prefix':'pref.','suffix':'suf.','idiom':'idiom',
           'acronym':'acr.','abbreviation':'abbr.','initialism':'init.','symbol':'symbol','letter':'letter',
-          'romanization':'rom.','proverb':'proverb','numeral':'num'
+          'romanization':'rom.','proverb':'proverb','numeral':'num.'
         };
-        var ret = [];
+        var found = false;
         var curlang = false;
+        var lastlang = false;
         var s = obj.mobileview.sections;
         s.forEach(function(n) {
           if (n.toclevel == 1) {
             if (!lang || data.languages[lang] && data.languages[lang].names.indexOf(n.line)>-1) {
               curlang = n.line;
-              ret.push(ret.length ? '| ' + curlang : curlang);
             } else {
               curlang = false;
             }
             return;
           }
           if (!curlang) return;
+          found = true;
           var wc = wordClasses[n.line.toLowerCase()];
           if (!wc) return;
-          var meanings = n.text.htmlfind('li').map(function(n,i) {
-            return (i+1) + '. '+ n.htmlremove('dl').htmlremove('ul').htmlstrip();
+          if (lastlang != curlang) {
+            respond.print (curlang+':','<nobr>');
+            lastlang = curlang;
+          }
+          respond.print (wc,'<nobr>');
+          n.text.htmlfind('li').forEach(function(n,i) {
+            respond.print( 
+              (i+1) 
+            + '. ' 
+            + n.htmlremove('dl')
+              .htmlremove('ul')
+              .htmlstrip()
+              .trim()
+              .replace(/,$/,'.')
+              .replace(/([^\.\?\!;"])$/,'$1.')
+            );
           });
-          ret.push (wc + ' ' + meanings.join(' ')+';');
+          respond.print('|');
         })
-        return respond (ret.join (' ').substr(0,500));
+        if (!found) return respond('nothing found');
+        respond.flush();
       });
     }
   })
@@ -78,28 +94,26 @@ exports.setup = function(bot) {
       if (!ret.length) return respond('nothing found');
       
       if (ret.length > 1) {
-        
         ret.sort(function(a,b) {
           return a[0].length - b[0].length;
         });
       
-        return respond (
-          ret.slice(0,15).map(format).join(' | ')
-        + (ret.length > 15 ? ' | +' + (ret.length-15) + ' more' : '')
-        );
-      } 
-      
-      var found = ret[0][2];
-      var txt = format(ret[0]);
-      var cnt = 0;
-      while (f = found.family) {
-        if (f=='qfa-und') break;
-        if (f=='qfa-not') break;
-        if (cnt++ > 10) break;
-        found = data.families[f];
-        txt += ' < [' + f + '] '+found.names.join(', ');
+        ret.forEach(function(n) {
+          respond.print(format(n));
+        });
+      } else {
+        respond.print(format(ret[0]));
+        var found = ret[0][2];
+        var cnt = 0;
+        while (f = found.family) {
+          if (f=='qfa-und') break;
+          if (f=='qfa-not') break;
+          if (cnt++ > 10) break;
+          found = data.families[f];
+          respond.print(' < [' + f + '] '+found.names.join(', '));
+        }
       }
-      respond(txt);
+      respond.flush();
     }
   })
 

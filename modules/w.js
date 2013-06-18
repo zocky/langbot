@@ -51,21 +51,21 @@ exports.setup = function(bot) {
       var ret = [];
       
       function format(a) {
-        return '[' + a[0] + '] ' + a[2].names.join (', ') + ' (' + a[1] + ')';
+        return '[' + a[0] + '] ' + a[2].names.join (', ') + ' ' + a[1] + '';
       }
       
       if (data.languages[q]) {
-        ret.push([q,'language',data.languages[q]]);
+        ret.push([q,'L',data.languages[q]]);
       } 
       if (!ret.length && data.families[q]) {
-        ret.push([q,'family',data.families[q]]);
+        ret.push([q,'F',data.families[q]]);
       } 
       if (!ret.length) {
         for (var i in data.languages) {
-          if (data.languages[i].names.join().toLowerCase().indexOf(q) > -1) ret.push([i,'language',data.languages[i]]);
+          if (data.languages[i].names.join().toLowerCase().indexOf(q) > -1) ret.push([i,'L',data.languages[i]]);
         }
         for (var i in data.families) {
-          if (data.families[i].names.join().toLowerCase().indexOf(q) > -1) ret.push([i,'family',data.families[i]]);
+          if (data.families[i].names.join().toLowerCase().indexOf(q) > -1) ret.push([i,'F',data.families[i]]);
         }
       }
 
@@ -78,8 +78,8 @@ exports.setup = function(bot) {
         });
       
         return respond (
-          ret.slice(0,10).map(format).join(' | ')
-        + (ret.length > 10 ? ' (+' + (ret.length-10) + ' more)' : '')
+          ret.slice(0,15).map(format).join(' | ')
+        + (ret.length > 15 ? ' | +' + (ret.length-15) + ' more' : '')
         );
       } 
       

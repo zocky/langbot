@@ -4,7 +4,7 @@ exports.setup = function(bot) {
   bot.addCommand('w', {
     usage: '.w [word], .w [lang]: [word]',
     help: 'get a definition from wiktionary',
-    args: /^(?:([\w\-]+):\s*)?(.*)$/,
+    args: /^(?:([\w\-]+):\s*)?(.+)$/,
     action: function(from,respond,lang,text) {
       if (lang && !data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
       
@@ -21,7 +21,7 @@ exports.setup = function(bot) {
           'preposition' : 'prep.','conjunction' : 'conj.','particle':'part.','interjection':'intj.',
           'proper noun': 'prop. n.','article':'art.','prefix':'pref.','suffix':'suf.','idiom':'idiom',
           'acronym':'acr.','abbreviation':'abbr.','initialism':'init.','symbol':'symbol','letter':'letter',
-          'romanization':'rom.','proverb':'proverb'
+          'romanization':'rom.','proverb':'proverb','numeral':'num'
         };
         var ret = [];
         var curlang = false;

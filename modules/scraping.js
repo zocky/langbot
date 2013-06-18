@@ -45,7 +45,6 @@ exports.setup = function(bot) {
         if (!obj.query || !obj.query.pages) return respond('nothing found');
         for (var id in obj.query.pages) {
           var p = obj.query.pages[id];
-          console.log(p);
           respond.print(p.extract.htmlstrip().shorten(450),'<br>');
         };
         respond.flush();
@@ -62,9 +61,11 @@ exports.setup = function(bot) {
         term:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var m = body.match(/<div id="dictionary">[\s\S]*?(<dt[\s\S]+?<\/dd>)/im);
-        if (!m) return respond('not found '+url);
-        respond(bot.dehtml(m[1].replace(/<.*?>/g,' ').replace(/\s+/g,' ')).trim().substr(0,300) + ' | '+ url);
+        var res = body.clean().extract(/<dt[^>]*>.*?<\/dd>/gi,'$&')
+        .filter(Boolean).map(function(n) {
+          return String(n).htmlstrip();
+        });
+        respond.flushbr(res.length ? res : 'not found');
       });
     }
   })
@@ -79,9 +80,12 @@ exports.setup = function(bot) {
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
         
-        var m = body.match(/<td class='word'[^>]*>\s*<span>([\s\S]*?)<\/span>[\s\S]*?<div class="definition">([\s\S]*?)<\/div>/im);
-        if (!m) return respond('not found '+url);
-        respond((bot.dehtml(m[1].trim() + ': ' + m[2]).replace(/<.*?>/g,' ').replace(/\s+/g,' ')).trim().substr(0,300) + ' | '+ url);
+        var res = body.clean().split(/<td class='word'[^>]*>/)
+        .extract(/^(.*?)<\/td>.*?<div class="definition">(.*?)<\/div>/i, '$1: $2')
+        .filter(Boolean).map(function(n) {
+          return String(n).htmlstrip();
+        });
+        respond.flushbr(res.length ? res : 'not found');
       });
     }
   })
@@ -110,17 +114,18 @@ exports.setup = function(bot) {
     action: function(from,respond,text) {
       bot.wget('http://ws.geonames.org/searchJSON', {
         q:text,
-        maxRows:1,
+        maxRows:10,
       }, function(error,response,body,url) {
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
-        if (!obj.geonames.length) return respond('nothing found');
-        var n = obj.geonames[0];
-        var desc = [n.name,n.adminName1,n.countryName,n.fcodeName,n.population && ('pop. '+n.population)].filter(Boolean).join(', ');
+        var res = obj.geonames.map(function(n) {
+          var desc =[n.name,n.adminName1,n.countryName,n.fcodeName,n.population && ('pop. '+n.population)].filter(Boolean).join(', ');
+          var loc = Number(n.lat).toFixed(5)+','+Number(n.lng).toFixed(5);
+          return (desc + ' | ' + 'http://maps.google.com/maps?ll='+loc+'&q=loc:'+loc+'&hl=en&t=h&z=9');
+        })
+        .filter(Boolean);
         
-        var loc = Number(n.lat).toFixed(5)+','+Number(n.lng).toFixed(5);
-        
-        return respond(desc + ' | ' + 'http://maps.google.com/maps?ll='+loc+'&q=loc:'+loc+'&hl=en&t=h&z=9');
+        respond.flushbr(res.length ? res : 'nothing found');
       });
     }
   })
@@ -184,31 +189,21 @@ exports.setup = function(bot) {
       }, function(error,response,body,url) {
         if (error) return respond('error: '+ String(error));
         
-        var m = body
-        .replace(/&amp;/g,'&')
-        .replace(/\s+/g,' ')
-        .match(/<tr class="row[01]">.*?<\/tr>/g)
-        .map(function(n) {
-          var o = n.match(re);
-          if (!o) return false;
-          var code = 'U+'+o[2];
-          var name = o[3].toLowerCase();
-          var C = parseInt(o[2],16);
+        var res = body.clean()
+        .extract(/<tr class="row[01]">(.*?)<\/tr>/g,'$1')
+        .log('tr')
+        .extract(/<a.*?>(.*?)<\/a>.*?<a.*?>U\+(.*?)<\/a><\/td>.*?<td>(.*?)<\/td>/,function($0,$1,$2,$3) {
+          var code = 'U+'+$2;
+          var name = $3.toLowerCase();
+          var C = parseInt($2,16);
           var char = String.fromCharCode(C);
           if (char == text) char = ''+char+'';
           var html = '&#'+C+';';
-          return char + ' ('+code + ' '+html+' '+name + ')';
+          return char + ' ('+code + ' '+html+' '+name + ') |';
         })
         .filter(Boolean)
         .unique();
-        
-        if (!m) return respond('not found');
-        respond (
-          m.slice(0,6)
-          .join (' | ')
-          + (m.length > 6 ? ' | + ' + (m.length-1) + ' more': '')
-          + ' | ' + url
-        );
+        respond.flush(res.length ? res : 'not found');
       })
     }
   })
@@ -245,18 +240,20 @@ exports.setup = function(bot) {
   bot.addCommand('g', {
     usage: '.g [search terms]',
     help: 'search google',
-    action: function(from,respond,text,langs) {
-      var sl = 'auto',tl='en';
-      var m = langs.match(/^(\w+)-(\w+)$/);
-      if (m) sl = m[1], tl=m[2], text = text.replace(/^\S+\s+/,'');
-      bot.wget('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&safe=off', {
-        q:text,
+    action: function(from,respond,text) {
+      bot.wget('http://ajax.googleapis.com/ajax/services/search/web', {
+        v: '1.0',
+        safe: 'off',
+        q: text
       }, function(error,response,body,url) {
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
-        if (!obj.responseData || !obj.responseData.results || !obj.responseData.results[0]) return respond('nothing found');
-        var n = obj.responseData.results[0];
-        return respond(n.unescapedUrl + ' | ' + bot.dehtml(n.titleNoFormatting) + ' | ' + bot.dehtml(n.content.replace(/\s+/g,' ').replace(/<b>(.*?)<\/b>/g,'$1')));
+        var data = undot(obj,'responseData.results');
+        if (!data || !data.length) return respond('nothing found '+url );
+        data.forEach(function(n) {
+          respond.print(n.unescapedUrl + ' | ' + n.titleNoFormatting.htmlstrip() + ' | ' + n.content.htmlstrip(),'<br>');
+        });
+        respond.flush();
       });
     }
   })
@@ -287,9 +284,12 @@ exports.setup = function(bot) {
         q:text
       }, function (error, response, body,url) {
         if (error) return respond('error: '+String(error));
-        var res = body.clean().extract(/<div class="tweet\b[^>]*>(.*?)<\/strong>(.*?)<\/b>(.*?)<\/small>(.*?)<div class="stream-item-footer">/,'$3 ago | $2 ($1): $4 ').htmlstrip().replace(/\( /,'(');
-        if (!res) respond ('nothing found');
-        respond (res);
+        var res = body.clean()
+        .extract(/<div class="tweet\b[^>]*>(.*?)<\/strong>(.*?)<\/b>(.*?)<\/small>(.*?)<div class="stream-item-footer">/g,'$3 ago | $2 ($1): $4 ')
+        .filter(Boolean).map(function(n) {
+          return n.htmlstrip().replace(/\( /,'(');
+        })
+        respond.flushbr(res.length ? res : 'not found');
       });
     }
   });

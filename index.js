@@ -34,7 +34,7 @@ var bot = {
       for (var i in cfg) this.config[i] = cfg[i];
     } catch(e) {
     }
-      console.log(this.config);
+    console.log(this.config);
   },
   init: function() {
     var me = this;
@@ -95,7 +95,6 @@ var bot = {
   say: function(a1,a2) {
     if (arguments.length == 1) {
       this.client.say(this.config.channel,a1);
-      console.log('say',a1.length);
     } else if (arguments.length == 2) {
       this.client.say(a1,a2);
     }
@@ -107,7 +106,9 @@ var bot = {
   pending: {},
   _pending: {},
   _print: function(nick,text) {
+
     text = String(text).clean().shorten(430);
+    console.log('print',nick,text);
     var pending = this.pending[nick];
     switch(pending[pending.length-1]) {
     case '':
@@ -120,15 +121,39 @@ var bot = {
       pending.push(text);
     }
   },
+  
   print: function(nick) {
-    for (var i = 1; i < arguments.length; i++) this._print(nick,arguments[i]);
+    var me = this;
+    Array.make(arguments).slice(1).flatten().filter(Boolean).forEach(function(n) {
+      me._print(nick,n);
+    })
+  },
+  printbr: function(nick) {
+    var me = this;
+    Array.make(arguments).slice(1).flatten().filter(Boolean).forEach(function(n) {
+      me.print(nick,n,'<br>');
+    })
   },
   clear: function(nick) {
     this.pending[nick] = [];
   },
-  more: function(nick, respond) {
+  flush: function(nick, respond) {
+    var me = this;
+    Array.make(arguments).slice(2).flatten().filter(Boolean).forEach(function(n) {
+      me._print(nick,n);
+    })
+    this._flush(nick,respond);
+  },
+  flushbr: function(nick, respond) {
+    console.log('flushbr');
+    var me = this;
+    var args = Array.make(arguments).log('args').slice(2).flatten().filter(Boolean).forEach(function(n) {
+      me.print(nick,n,'<br>');
+    })
+    this._flush(nick,respond);
+  },
+  _flush: function(nick, respond) {
     var pending = this.pending[nick];
-    
     if (!pending) return respond ('nothing in your queueueue');
 
     if (!pending.length) return respond('EOF');
@@ -146,9 +171,8 @@ var bot = {
     var text = out.join(' ');
     while(pending[pending.length-1] == '<nobr>') pending.pop();
     if (pending.length) {
-      text+=' ... [.more]';
-      pending[0] = '... ' + pending[0];
-      console.log(this.pending[nick]);
+      text+=' [...]';
+      pending[0] = '[...] ' + pending[0];
     }
     respond(text);    
   },
@@ -172,7 +196,9 @@ var bot = {
     var me = this;
     var pending = me.pending[from];
     respond.print = me.print.bind(me,from);
-    respond.flush = me.more.bind(me,from,respond);
+    respond.flush = me.flush.bind(me,from,respond);
+    respond.printbr = me.printbr.bind(me,from);
+    respond.flushbr = me.flushbr.bind(me,from,respond);
     
     args.unshift(respond);
     args.unshift(from);
@@ -217,12 +243,17 @@ bot.addCommand('help', {
   usage: 'help, help [command]',
   help: "dumbfuck: n. somebody who can't figure out what .help does",
   action: function(from,respond,text,cmd) {
-    if (!cmd) return respond(
-      Object.keys(bot.commands)
-      .join(', ')
-    );
+    if (!cmd) return respond.flush(
+        Object.keys(bot.commands)
+        .join(', '),
+        '<br>','type .help help for more help with help',
+        '<br>','you are beyond help',
+        '<br>','please desist',
+        '<br>','I\'d rather be sailing',
+        '<br>',' /ignore'
+      );
     if (!bot.commands[cmd]) return respond ('unknown command '+cmd +', try .help');
-    return respond ( bot.commands[cmd].usage + ' | ' + bot.commands[cmd].help);
+    respond.flush(bot.commands[cmd].usage + ' | ' + bot.commands[cmd].help,'<br>','for more help, see a psychiatrist');
   }
 })
 
@@ -231,7 +262,7 @@ bot.addCommand('more', {
   help: "show more results from your last search",
   action: function(from,respond) {
     bot.pending[from] = bot._pending[from].concat();
-    bot.more(from,respond);
+    bot.flush(from,respond);
   }
 })
 

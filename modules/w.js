@@ -88,6 +88,7 @@ exports.setup = function(bot) {
       var cnt = 0;
       while (f = found.family) {
         if (f=='qfa-und') break;
+        if (f=='qfa-not') break;
         if (cnt++ > 10) break;
         found = data.families[f];
         txt += ' < [' + f + '] '+found.names.join(', ');

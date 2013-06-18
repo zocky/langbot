@@ -18,7 +18,7 @@ exports.setup = function(bot) {
       }
       bot.wget(url, function (error, response, body) {
         if (error) return respond('error: '+String(error));
-        if(response.headers['content-type'].substr(0,9)!='text/html') return respond('content-type: '+response.headers['content-type']);
+        if(response.headers['content-type'].substr(0,9)!='text/html') return respond('content-type: '+response.headers['content-type'] + ' | '+url);
         
         var title = body.extract(/<title\s*>\s*(.*?)\s*<\/title\s*>/i,'$1').htmldecode() || 'could not find title';
         return respond(title + ' | ' + url );
@@ -306,6 +306,22 @@ exports.setup = function(bot) {
       });
     }
   });
+
+  bot.addCommand('twit', {
+    usage: '.twit [search terms]',
+    help: 'show the latest tweet',
+    action: function(from,respond,text,url) {
+      bot.wget('http://twitter.com/search/realtime', {
+        q:text
+      }, function (error, response, body,url) {
+        if (error) return respond('error: '+String(error));
+        var res = body.clean().extract(/<div class="tweet\b[^>]*>(.*?)<\/strong>(.*?)<\/b>(.*?)<\/small>(.*?)<div class="stream-item-footer">/,'$3 ago | $2 ($1): $4 ').htmlstrip().replace(/\( /,'(');
+        if (!res) respond ('nothing found');
+        respond (res);
+      });
+    }
+  });
+  
   
   bot.addCommand('rae', {
     usage: '.rae [word]',

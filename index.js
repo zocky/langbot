@@ -95,7 +95,7 @@ var bot = {
   say: function(a1,a2) {
     if (arguments.length == 1) {
       this.client.say(this.config.channel,a1);
-      console.log('say',a1);
+      console.log('say',a1.length);
     } else if (arguments.length == 2) {
       this.client.say(a1,a2);
     }
@@ -107,7 +107,7 @@ var bot = {
   pending: {},
   _pending: {},
   _print: function(nick,text) {
-    text = String(text).clean().shorten(440);
+    text = String(text).clean().shorten(430);
     var pending = this.pending[nick];
     switch(pending[pending.length-1]) {
     case '':
@@ -140,7 +140,7 @@ var bot = {
         pending.shift();
         break;
       }
-      if (out.join(' ').length + pending[0].length + 1 > 450) break;
+      if (out.join(' ').length + pending[0].length + 1 > 440) break;
       out.push(pending.shift());
     }
     var text = out.join(' ');

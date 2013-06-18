@@ -148,7 +148,7 @@ require('./modules/restart.js').setup(bot);
 
 bot.addCommand('help', {
   usage: 'help, help [command]',
-  help: 'displays a list of commands, or help for a specific command',
+  help: "dumbfuck: n. somebody who can't figure out what .help does",
   action: function(from,respond,text,cmd) {
     if (!cmd) return respond(
       Object.keys(bot.commands)

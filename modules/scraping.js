@@ -309,7 +309,7 @@ exports.setup = function(bot) {
   
   bot.addCommand('rae', {
     usage: '.rae [word]',
-    help: 'search Real Academia Española dictionary',
+    help: 'search Real Academia Española dictionary. SLOOOOOOW.',
     action: function(from,respond,text,url) {
       bot.wget('http://lema.rae.es/drae/srv/search', {
         val:text
@@ -317,7 +317,7 @@ exports.setup = function(bot) {
         if (error) return respond('error: '+String(error));
         var def = body.htmlfind('div').join(' ').htmlstrip();
         if (def) return respond(def);
-        return respond ('homonymia');
+        return respond ('homonymia, see '+url);
       });
     }
   })

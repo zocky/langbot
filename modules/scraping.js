@@ -305,5 +305,21 @@ exports.setup = function(bot) {
         return respond( obj.Title + ' (' + obj.Year + ')' + ' | ' + obj.imdbRating + ' | ' + 'http://imdb.com/title/' + obj.imdbID + ' | ' + obj.Plot );
       });
     }
+  });
+  
+  bot.addCommand('rae', {
+    usage: '.rae [word]',
+    help: 'search Real Academia Española dictionary',
+    action: function(from,respond,text,url) {
+      bot.wget('http://lema.rae.es/drae/srv/search', {
+        val:text
+      }, function (error, response, body,url) {
+        if (error) return respond('error: '+String(error));
+        var def = body.htmlfind('div').join(' ').htmlstrip();
+        if (def) return respond(def);
+        return respond ('homonymia');
+      });
+    }
   })
+
 };

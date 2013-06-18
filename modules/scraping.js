@@ -256,48 +256,6 @@ exports.setup = function(bot) {
     }
   })
 
-  bot.addCommand('w', {
-    usage: '.w [word]',
-    help: 'get a definition from wiktionary',
-    action: function(from,respond,text) {
-      bot.wget('http://en.wiktionary.org/w/api.php?action=mobileview&sections=all&format=json',{
-        page:text,
-      }, function(error,response,body) {
-      
-        if (error) return respond('error: '+ String(error));
-        try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
-        if (!obj.mobileview || !obj.mobileview.sections) return respond('nothing found');
-
-        var wordClasses = {
-          'noun': 'n.', 'verb': 'v.', 'adjective':'adj.', 'adverb' : 'adv.' ,'pronoun': 'pron.',
-          'preposition' : 'prep.','conjunction' : 'conj.','particle':'part.','interjection':'intj.',
-          'proper noun': 'prop. n.','article':'art.','prefix':'pref.','suffix':'suf.','idiom':'idiom',
-          'acronym':'acr.','abbreviation':'abbr.','initialism':'init.','symbol':'symbol','letter':'letter',
-          'romanization':'rom.','proverb':'proverb'
-        };
-        var ret = [];
-        var lang = '';
-        var s = obj.mobileview.sections;
-        s.forEach(function(n) {
-          if (n.toclevel == 1) {
-            lang = n.line;
-            ret.push(ret.length ? '| '+lang : lang);
-            return;
-          }
-          if (n.toclevel >= 2) {
-            var wc = wordClasses[n.line.toLowerCase()];
-            if (!wc) return;
-            var meanings = n.text.htmlfind('li').map(function(n,i) {
-              return (i+1) + '. '+ n.htmlremove('dl').htmlremove('ul').htmlstrip();
-            });
-            ret.push (wc + ' ' + meanings.join(' ')+';');
-          }
-        })
-        return respond (ret.join (' ').substr(0,500));
-      });
-    }
-  })
-
   bot.addCommand('imdb', {
     usage: '.imdb [movie]',
     help: 'get information about a movie on imdb',

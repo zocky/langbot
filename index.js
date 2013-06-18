@@ -106,7 +106,7 @@ var bot = {
   _pending: {},
   _print: function(nick,text) {
 
-    text = String(text).clean().shorten(430);
+    text = String(text).clean().shorten(420);
     var pending = this.pending[nick];
     switch(pending[pending.length-1]) {
     case '':
@@ -145,7 +145,7 @@ var bot = {
   flushbr: function(nick, respond) {
     console.log('flushbr');
     var me = this;
-    var args = Array.make(arguments).log('args').slice(2).flatten().filter(Boolean).forEach(function(n) {
+    var args = Array.make(arguments).slice(2).flatten().filter(Boolean).forEach(function(n) {
       me.print(nick,n,'<br>');
     })
     this._flush(nick,respond);
@@ -163,7 +163,7 @@ var bot = {
         pending.shift();
         break;
       }
-      if (out.join(' ').length + pending[0].length + 1 > 440) break;
+      if (out.join(' ').length + pending[0].length + 1 > 430) break;
       out.push(pending.shift());
     }
     var text = out.join(' ');
@@ -175,15 +175,16 @@ var bot = {
     respond(text);    
   },
   doMessage: function(from,msg,respond) {
+    msg = msg.clean();
     var m = msg.match(/^(\w+)(.*)$/);
     if (!m) return;
     var cmd = this.commands[m[1]];
     if (!cmd) return;
     if (cmd.args instanceof RegExp) {
 //      console.log(cmd.args);
-      var m = msg.replace(/^\S*\s*/,'').match(cmd.args);
-      if (!m) return respond ('bad args: '+msg);
-      var args = Array.prototype.slice.call(m,1);
+      var m = msg.replace(/^\w+/,'').trim().match(cmd.args);
+      if (!m) return respond ('bad args, usage: '+cmd.usage);
+      var args = Array.make(m).slice(1);
 //      console.log('re',args);
     } else {
       var text = m[2].trim();
@@ -197,9 +198,11 @@ var bot = {
     respond.flush = me.flush.bind(me,from,respond);
     respond.printbr = me.printbr.bind(me,from);
     respond.flushbr = me.flushbr.bind(me,from,respond);
+
     
     args.unshift(respond);
     args.unshift(from);
+    console.log(cmd.args,args);
 
     me._pending[from] = (me.pending[from]||[]).concat();
     me.pending[from] = [];

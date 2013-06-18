@@ -11,7 +11,8 @@ exports.setup = function(bot) {
   bot.addCommand('title', {
     usage: '.title [url], .title',
     help: 'get title of [url], or title of last mentioned url',
-    action: function(from,respond,text,url) {
+    args: /^(https?:\/\/\S+)?$/,
+    action: function(from,respond,url) {
       if (!url) {
         if (!lastUrl.length) return respond ('no url');
         url = lastUrl.pop();
@@ -29,6 +30,7 @@ exports.setup = function(bot) {
   bot.addCommand('wik', {
     usage: '.wik [search terms]',
     help: 'get a definition from wikipedia',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       var searchlang='en';
       var searchterms='';
@@ -55,6 +57,7 @@ exports.setup = function(bot) {
   bot.addCommand('ety', {
     usage: '.ety [search terms]',
     help: 'search etymology online',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.etymonline.com/index.php', {
@@ -73,6 +76,7 @@ exports.setup = function(bot) {
   bot.addCommand('urban', {
     usage: '.urban [search terms]',
     help: 'search urban dictionary',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.urbandictionary.com/define.php', {
@@ -93,6 +97,7 @@ exports.setup = function(bot) {
   bot.addCommand('c', {
     usage: '.c [expression]',
     help: 'google calculator',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
       bot.wget('http://www.google.com/ig/calculator?ie=utf-8&oe-utf-8', {
@@ -111,6 +116,7 @@ exports.setup = function(bot) {
   bot.addCommand('where', {
     usage: '.where [search terms]',
     help: 'lookup geonames database',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       bot.wget('http://ws.geonames.org/searchJSON', {
         q:text,
@@ -133,7 +139,7 @@ exports.setup = function(bot) {
   bot.addCommand('weather', {
     usage: '.weather [search terms]',
     help: 'lookup weather underground',
-    
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       function trend(n) {
         switch (n) {
@@ -179,6 +185,7 @@ exports.setup = function(bot) {
   bot.addCommand('u', {
     usage: '.u [search terms]',
     help: 'lookup unicode table',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
       var re = /<a.*?>(.*?)<\/a>.*?<a.*?>U\+(.*?)<\/a><\/td>.*?<td>(.*?)<\/td>/;
@@ -240,6 +247,7 @@ exports.setup = function(bot) {
   bot.addCommand('g', {
     usage: '.g [search terms]',
     help: 'search google',
+    args: /^(.+)$/,
     action: function(from,respond,text) {
       bot.wget('http://ajax.googleapis.com/ajax/services/search/web', {
         v: '1.0',
@@ -260,6 +268,7 @@ exports.setup = function(bot) {
 
   bot.addCommand('imdb', {
     usage: '.imdb [movie]',
+    args: /^(.+)$/,
     help: 'get information about a movie on imdb',
     action: function(from,respond,text) {
       if (!text) {
@@ -279,7 +288,8 @@ exports.setup = function(bot) {
   bot.addCommand('twit', {
     usage: '.twit [search terms]',
     help: 'show the latest tweet',
-    action: function(from,respond,text,url) {
+    args: /^(.+)$/,
+    action: function(from,respond,text) {
       bot.wget('http://twitter.com/search/realtime', {
         q:text
       }, function (error, response, body,url) {
@@ -298,7 +308,8 @@ exports.setup = function(bot) {
   bot.addCommand('rae', {
     usage: '.rae [word]',
     help: 'search Real Academia Española dictionary. SLOOOOOOW.',
-    action: function(from,respond,text,url) {
+    args: /^(.+)$/,
+    action: function(from,respond,text) {
       bot.wget('http://lema.rae.es/drae/srv/search', {
         val:text
       }, function (error, response, body,url) {
@@ -309,5 +320,4 @@ exports.setup = function(bot) {
       });
     }
   })
-
 };

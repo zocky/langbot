@@ -215,12 +215,17 @@ exports.setup = function(bot) {
   + 'sr-ME|st|su|sv|sw|ta|te|tg|th|ti|tk|tl|tn|to|tr|tt|tum|tw|ug|uk|ur|uz|vi|wo|xh|xx-bork|xx-elmer|xx-hacker|xx-klingon|'
   + 'xx-pirate|yi|yo|zh-CN|zh-TW|zu)';
 
+  var googleTrLangs =
+    '(af|ar|az|be|bg|bn|bs|ca|ceb|cs|cy|da|de|el|en|eo|es|et|eu|fa|fi|fil|fr|ga|gl|guj|he|hi|hmn|hr|ht|hu|hy|id|is|it|ja|'
+  + 'jv|ka|kan|khm|ko|la|lao|lt|lv|mar|mk|ms|mt|nb|nl|pl|pt|ro|ru|sk|sl|sq|sr|sv|sw|tam|tel|tha|tr|uk|ur|vi|yi|zh|
+  + 'zh-CN|zh-TW)';
+
   bot.addCommand('tr', {
     usage: '.tr [source]:[target] [text to translate]',
     help: 'google translate',
-    args: new RegExp('^(?:'+googleLangs + '?:'+googleLangs + '?\\s+)?(.*)$'),
+    args: new RegExp('^(?:'+googleTrLangs + '?:'+googleTrLangs + '?\\s+)?(.*)$'),
     action: function(from,respond,sl,tl,text) {
-      if (text=='?') return respond(googleLangs);
+      if (text=='?') return respond(googleTrLangs);
       sl = sl || 'auto';
       tl = tl || 'en';
       bot.wget('http://translate.google.com/translate_a/t?client=t&hl=en&otf=1&ssel=0&tsel=0&uptl=en&sc=1&oe=utf-8&ie=utf-8', {

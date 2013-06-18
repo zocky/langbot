@@ -106,14 +106,22 @@ var bot = {
   doMessage: function(from,msg,respond) {
     var m = msg.match(/^(\w+)(.*)$/);
     if (!m) return;
-    var cmd = m[1];
-    if (!this.commands[cmd]) return;
-    var text = m[2].trim();
-    var args = text.split(/\s+/);
-    args.unshift(text);
+    var cmd = this.commands[m[1]];
+    if (!cmd) return;
+    if (cmd.args instanceof RegExp) {
+      console.log(cmd.args);
+      var m = msg.replace(/^\S*\s*/,'').match(cmd.args);
+      if (!m) return respond ('bad args: '+msg);
+      var args = Array.prototype.slice.call(m,1);
+      console.log(args);
+    } else {
+      var text = m[2].trim();
+      var args = text.split(/\s+/);
+      args.unshift(text);
+    }
     args.unshift(respond);
     args.unshift(from);
-    this.commands[cmd].action.apply(this,args);
+    cmd.action.apply(this,args);
   },
   present: function() { return false }, //overriden in modules/users.js
   commands: {},

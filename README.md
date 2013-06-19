@@ -9,7 +9,7 @@ An IRC bot written in node.js.
 running the bot
 ---------------
 
-     ./langbot start [botname]
+    ./langbot start [botname]
 Start a bot with config in ./var/botname.config.json. Botname defaults to default.
 
     ./langbot stop [botname]
@@ -18,10 +18,10 @@ Stop a bot. Botname defaults to default.
     ./langbot restart [botname]
 Restart a bot. Botname defaults to default.
 
-     ./langbot update
+    ./langbot update
 Update required npm packages and the bot source.
 
-     ./langbot reinstall
+    ./langbot reinstall
 Reinstall required npm packages.
 
 commands

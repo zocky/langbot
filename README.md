@@ -6,6 +6,14 @@ An IRC bot in node.js
 =======
 An IRC bot written in node.js.
 
+installation
+------------
+    git clone https://github.com/zocky/langbot.git
+    cd langbot
+    cp etc/default.config.json.example etc/default.config.json
+    "${EDITOR:-vi}" etc/default.config.json.example
+    ./langbot start
+
 running the bot
 ---------------
 

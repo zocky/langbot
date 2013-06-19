@@ -44,7 +44,7 @@ module.exports = {
     
     var client = me.client = new irc.Client(me.config.host, me.config.nick, {
         channels: [me.config.channel],
-    //    autoRejoin: true,
+        autoRejoin: false,
         userName: 'langbot',
         autoConnect: true,
         floodProtection: true,

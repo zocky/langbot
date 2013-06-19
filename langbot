@@ -59,57 +59,58 @@ var cmd = process.argv[2];
 var bot = process.argv[3] || 'default';
 
 /* START / STOP */
-function stop(cb) {
-  if (!pid) {
-    console.log(bot + ' is not running.');
-    cb && cb();
-    return;
-  }
-  process.stdout.write('Stopping '+bot+' ');
-  process.kill(pid,'SIGINT');
-  var cnt = 0;
-  console.log('waiting');
-  var t = setInterval(function() {
-    cnt++;
-    process.stdout.write(".");
-    var r = running(pid);
-    if (cnt == 20 || !r) {
-      if (r)  {
-        process.stdout.write('. Timed out. \n');
-        console.log(bot+' refuses to stop. Will kill.');
-        process.kill(pid,'SIGHUP');
-      } else {
-        process.stdout.write('. Stopped. \n');
-      }
-      if (fs.existsSync(pidfile)) fs.unlinkSync(pidfile);
-      pid = null;
-      clearInterval(t);
-      cb && cb();
-    };
-  },1000);
-}
-
-function start(cb) {
-  if (pid) {
-    console.log(bot + ' is already running at pid '+pid+'.');
-    cb && cb();
-    return;
-  }
-  require('daemon').daemon('./src/index.js',[bot],{
-    stdout: process.stdout,
-    stderr: process.stderr,
-  });
-}
-
-function exit() {
-  console.log('Done');
-  process.exit();
-}
 
 process.cwd(__dirname);
 install(function() {
   
   var running = require('is-running');  
+
+  function stop(cb) {
+    if (!pid) {
+      console.log(bot + ' is not running.');
+      cb && cb();
+      return;
+    }
+    process.stdout.write('Stopping '+bot+' ');
+    process.kill(pid,'SIGINT');
+    var cnt = 0;
+    console.log('waiting');
+    var t = setInterval(function() {
+      cnt++;
+      process.stdout.write(".");
+      var r = running(pid);
+      if (cnt == 20 || !r) {
+        if (r)  {
+          process.stdout.write('. Timed out. \n');
+          console.log(bot+' refuses to stop. Will kill.');
+          process.kill(pid,'SIGHUP');
+        } else {
+          process.stdout.write('. Stopped. \n');
+        }
+        if (fs.existsSync(pidfile)) fs.unlinkSync(pidfile);
+        pid = null;
+        clearInterval(t);
+        cb && cb();
+      };
+    },1000);
+  }
+
+  function start(cb) {
+    if (pid) {
+      console.log(bot + ' is already running at pid '+pid+'.');
+      cb && cb();
+      return;
+    }
+    require('daemon').daemon('./src/index.js',[bot],{
+      stdout: process.stdout,
+      stderr: process.stderr,
+    });
+  }
+
+  function exit() {
+    console.log('Done');
+    process.exit();
+  }
   
   
 

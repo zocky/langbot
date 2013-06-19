@@ -35,6 +35,7 @@ module.exports = {
     } catch(e) {
     }
   },
+  loadedModules: {},
   loadModules: function() {
     var me = this;
     fs.readdirSync('src/modules/').forEach(function(n){
@@ -48,6 +49,7 @@ module.exports = {
     var opt = this.config.modules && this.config.modules[name] || {};
     if (!opt.disabled) {
       require('../modules/'+name+'.mod.js').setup(this,opt);
+      this.loadedModules[name] = true;
     }
   },
   init: function(confname) {

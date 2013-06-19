@@ -1,4 +1,4 @@
-var data = require('./w.data.js');
+var data = require('./wikimedia.data.js');
 
 exports.setup = function(bot) {
  bot.addCommand('wik', {

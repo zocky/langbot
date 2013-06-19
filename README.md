@@ -8,11 +8,10 @@ An IRC bot written in node.js.
 
 installation
 ------------
-    git clone https://github.com/zocky/langbot.git
-    cd langbot
-    cp etc/default.config.json.example etc/default.config.json
-    "${EDITOR:-vi}" etc/default.config.json.example
-    ./langbot start
+    git clone https://github.com/zocky/langbot.git;
+    cd langbot;
+    cp etc/default.config.json.example etc/default.config.json;
+    "${EDITOR:-vi}" etc/default.config.json.example;
 
 running the bot
 ---------------

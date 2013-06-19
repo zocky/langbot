@@ -1,0 +1,6 @@
+{
+  "daemon" : true,
+  "is-running" : true,
+  "html-entities" : true,
+  "request" : true
+}

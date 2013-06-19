@@ -3,7 +3,7 @@ var data = require('./w.data.js');
 exports.setup = function(bot) {
  bot.addCommand('wik', {
   
-    usage: '.wik [search terms]',
+    usage: '.wik [lang:] [search terms]',
     help: 'get a definition from wikipedia',
     args: /^(?:([\w\-]+):\s*)?(.+)$/,
     action: function(from,respond,lang,text) {

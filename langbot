@@ -1,35 +1,64 @@
 #!/usr/bin/nodejs
 
-var daemon = require('daemon');
 var fs = require('fs');
-var running = require('is-running')
+var cp = require('child_process')
+
+/* INSTALL AND UPDATE */
+var packages = require('./packages.json');
+var me = this;
+
+fs.readdirSync('./src/modules/').forEach(function(n){
+  var m = n.match(/^(\w+)\.packages\.json$/);
+  if (!m) return;
+  var p = request('./src/modules/'+n);
+  for (var i in p) packages[i] = p[i];
+})
+
+var shell = function(cmd,cb,text) {
+  var child = cp.spawn('/bin/sh',['-c',cmd],{stdio:'inherit'});
+  child.on('error',function(err) {
+    console.log(err);
+    exit();
+  });
+  child.on('close',function() {
+    console.log(text||'done');
+    cb();
+  });
+}
+
+function install(cb) {
+  var cmds = [];
+  for (var i in packages) if (!fs.existsSync('./node_modules/'+i)) cmds.push('/usr/bin/npm install '+i);
+  if (cmds.length) {
+    console.log('Installing missing packages.');
+    shell(cmds.join(';\n'),cb,'Install done.');
+  } else cb();
+}  
+
+function reinstall(cb) {
+  var cmds = [];
+  for (var i in packages) cmds.push('/usr/bin/npm install '+i);
+  console.log('Reinstalling all packages.');
+  if (cmds.length) {
+    shell(cmds.join(';\n'),cb,'Reinstall done.');
+  } else cb();
+}  
+
+function update(cb) {
+  console.log('Updating.');
+  var cmds = [];
+  for (var i in packages) cmds.push('/usr/bin/npm update '+i);
+  cmds.push('git pull');
+  console.log(cmds);
+  if (cmds.length) {
+    shell(cmds.join(';\n'),cb,'Update done.');
+  } else cb();
+}
 
 var cmd = process.argv[2];
 var bot = process.argv[3] || 'default';
 
-if (!cmd) {
-  console.error('usage: langbot start|stop|restart [bot_name]');
-  process.exit();
-}
-
-process.cwd(__dirname);
-
-var conffile = './etc/'+bot+'.config.json';
-if (!fs.existsSync(conffile)) {
-  console.error('no such bot '+bot);
-  process.exit();
-};
-
-
-var pidfile = './var/'+bot+'.pid';
-var pid = fs.existsSync(pidfile) ? Number(fs.readFileSync(pidfile)) : null;
-if (pid) console.log('Found pid '+pid);
-if (!running(pid)) {
-  console.log('Found stale pid file. Will delete.');
-  fs.unlinkSync(pidfile);
-  pid = null;
-}
-
+/* START / STOP */
 function stop(cb) {
   if (!pid) {
     console.log(bot + ' is not running.');
@@ -66,34 +95,67 @@ function start(cb) {
     cb && cb();
     return;
   }
-  daemon.daemon('./src/index.js',[bot],{
+  require('daemon').daemon('./src/index.js',[bot],{
     stdout: process.stdout,
     stderr: process.stderr,
   });
 }
 
-var exit = function() {
+function exit() {
   console.log('Done');
   process.exit();
 }
 
-switch (cmd) {
-case 'start':
-  start(exit);
-  break;
-case 'stop':
-  stop(exit);
-  break;
-case 'restart':
-  stop(function() {
-    start(exit);
-  });
-  break;
-case 'install': 
-case 'update': 
-  console.log('this should install/update your npm packages and do git pull, but it doesn\'t');
-  break;
-default:
-  console.error('usage: langbot start|stop|restart [bot_name]');
-}
+process.cwd(__dirname);
+install(function() {
+  
+  var running = require('is-running');  
+  
+  
 
+  if (!cmd) {
+    console.error('usage: langbot start|stop|restart [bot_name]');
+    process.exit();
+  }
+
+  /* REALLY START */
+
+  var conffile = './etc/'+bot+'.config.json';
+  if (!fs.existsSync(conffile)) {
+    console.error('no such bot '+bot);
+    process.exit();
+  };
+
+
+  var pidfile = './var/'+bot+'.pid';
+  var pid = fs.existsSync(pidfile) ? Number(fs.readFileSync(pidfile)) : null;
+  if (pid) console.log('Found pid '+pid);
+  if (!running(pid)) {
+    console.log('Found stale pid file. Will delete.');
+    fs.unlinkSync(pidfile);
+    pid = null;
+  }
+
+
+  switch (cmd) {
+  case 'reinstall':
+    reinstall(exit);
+    break;
+  case 'update':
+    update(exit);
+    break;
+  case 'start':
+    start(exit);
+    break;
+  case 'stop':
+    stop(exit);
+    break;
+  case 'restart':
+    stop(function() {
+      start(exit);
+    });
+    break;
+  default:
+    console.error('usage: langbot start|stop|restart [bot_name]');
+  }
+});

@@ -1,10 +1,9 @@
 require('./utils.js');
 var fs = require('fs');
 var irc = require('irc');
+var http = require('http');
 var request = require('request');
 var qs = require('querystring');
-var entities = new (require('html-entities').AllHtmlEntities);
-
 
 module.exports = {
   client: null,
@@ -41,12 +40,15 @@ module.exports = {
     fs.readdirSync('src/modules/').forEach(function(n){
       var m = n.match(/^(\w+)\.mod\.js$/);
       if (!m) return;
-      console.log('loading module',m[1]);
       me.loadModule(m[1]);
     })
   },
   loadModule: function(name) {
-    require('../modules/'+name+'.mod.js').setup(this);
+    console.log('loading module',m[1]);
+    var opt = this.config.modules && this.config.modules[name] || {};
+    if (!opt.disabled) {
+      require('../modules/'+name+'.mod.js').setup(this,opt);
+    }
   },
   init: function(confname) {
     this.confname = confname || 'default';
@@ -126,9 +128,6 @@ module.exports = {
   
     return me;
 
-  },
-  dehtml: function(str) {
-    return entities.decode(str);
   },
   say: function(a1,a2) {
     if (arguments.length == 1) {

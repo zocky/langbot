@@ -1,6 +1,7 @@
 langbot
 =======
 
+<<<<<<< HEAD
 running the bot
 ---------------
     ./langbot start [bot_name]
@@ -10,6 +11,24 @@ Will start a bot, reading configuration from var/[botname].conf. [botname]
 
 
 An IRC bot in node.js
+=======
+An IRC bot written in node.js.
+
+running the bot
+---------------
+
+     ./langbot update [botname]
+Should install/update required npm packages and do git pull, but it doesn't.
+
+     ./langbot start [botname]
+Start a bot with config in ./var/botname.config.json. Botname defaults to default.
+
+    ./langbot stop [botname]
+Stop a bot. Botname defaults to default.
+
+    ./langbot restart [botname]
+Restart a bot. Botname defaults to default.
+>>>>>>> e8fa890507f99c0ac3bd3032d54e31748d918269
 
 commands
 --------
@@ -58,8 +77,13 @@ leave a message for a user
 
 API for modules
 ---------------
+<<<<<<< HEAD
+=======
 
-    exports.setup = function(bot) {
+Save your module in ./src/modules/modname.mod.js. Store its options in modules.modname in the config file
+>>>>>>> e8fa890507f99c0ac3bd3032d54e31748d918269
+
+    exports.setup = function(bot,opt) {
       bot.listen(function(from,msg) {
         // listen to the channel
       });

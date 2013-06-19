@@ -36,14 +36,19 @@ module.exports = {
     } catch(e) {
     }
   },
-  loadModules: function(name) {
+  loadModules: function() {
+    var me = this;
+    fs.readdirSync('src/modules/').forEach(function(n){
+      var m = n.match(/^(\w+)\.mod\.js$/);
+      if (!m) return;
+      console.log('loading module',m[1]);
+      me.loadModule(m[1]);
+    })
   },
   loadModule: function(name) {
-    require('../modules/'+name+'.js').setup(this);
+    require('../modules/'+name+'.mod.js').setup(this);
   },
   init: function(confname) {
-
-    
     this.confname = confname || 'default';
     var me = this;
     me.load();
@@ -101,7 +106,26 @@ module.exports = {
         me.say(from,reply);
       });
     });
+
+    me.loadModules();
+    
+    process.on('SIGINT', function () {
+      console.log('disconnecting');
+      me.client.disconnect('deadness ensues', function() {
+        setTimeout(function() {
+          console.log('disconnected, shutting down');
+          process.exit(); 
+        },3000);
+      });
+    });
+
+    process.on('uncaughtException', function(err) {
+      console.log(err.stack);
+      me.report('exception',err);
+    });
+  
     return me;
+
   },
   dehtml: function(str) {
     return entities.decode(str);

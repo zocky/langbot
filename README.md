@@ -1,7 +1,22 @@
 langbot
 =======
 
-An IRC bot in node.js
+An IRC bot written in node.js.
+
+running the bot
+---------------
+
+     ./langbot update [botname]
+Should install/update required npm packages and do git pull, but it doesn't.
+
+     ./langbot start [botname]
+Start a bot with config in ./var/botname.config.json. Botname defaults to default.
+
+    ./langbot stop [botname]
+Stop a bot. Botname defaults to default.
+
+    ./langbot restart [botname]
+Restart a bot. Botname defaults to default.
 
 commands
 --------
@@ -48,10 +63,12 @@ weather forecast from weather underground
     .tell [nick] [message]
 leave a message for a user
 
-API
----
+API for modules
+---------------
 
-    exports.setup = function(bot) {
+Save your module in ./src/modules/modname.mod.js. Store its options in modules.modname in the config file
+
+    exports.setup = function(bot,opt) {
       bot.listen(function(from,msg) {
         // listen to the channel
       });

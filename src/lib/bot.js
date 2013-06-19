@@ -44,7 +44,7 @@ module.exports = {
     })
   },
   loadModule: function(name) {
-    console.log('loading module',m[1]);
+    console.log('Loading module',name+'.');
     var opt = this.config.modules && this.config.modules[name] || {};
     if (!opt.disabled) {
       require('../modules/'+name+'.mod.js').setup(this,opt);

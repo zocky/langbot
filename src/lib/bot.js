@@ -16,7 +16,7 @@ module.exports = {
     pass: undefined
   },
   report: function(a1,a2) {
-    console.log(this.config.master,a1+':',a2);
+    console.error(this.config.master,a1+':',a2);
     if (this.config.master && this.present(this.config.master)) this.say(this.config.master,a1+': '+a2);
   },
   save: function() {
@@ -35,13 +35,25 @@ module.exports = {
       for (var i in cfg) this.config[i] = cfg[i];
     } catch(e) {
     }
-    console.log(this.config);
+  },
+  loadModules: function(name) {
+  },
+  loadModule: function(name) {
+    require('../modules/'+name+'.js').setup(this);
   },
   init: function(confname) {
+
+    
     this.confname = confname || 'default';
     var me = this;
     me.load();
-    
+    console.log('Starting '+ this.confname + ' @' + this.config.nick + ' ' + this.config.channel);
+
+    var pidfile = './var/'+this.confname+'.pid'
+    fs.writeFileSync(pidfile,process.pid);
+    process.on('exit', function() {
+      fs.unlinkSync(pidfile)
+    })    
     var client = me.client = new irc.Client(me.config.host, me.config.nick, {
         channels: [me.config.channel],
         autoRejoin: false,
@@ -56,9 +68,9 @@ module.exports = {
     });
     
     client.addListener('error', me.report.bind(this,'error'));
-    client.addListener('registered', me.report.bind(this,'registered'));
+//    client.addListener('registered', me.report.bind(this,'registered'));
     client.addListener('notice', function(from, to, text,message) {
-      me.report('notice','<'+from+'> '+text);
+      me.report('notice','<'+(from||me.config.host)+'> '+text);
     });
 
     client.addListener('invite', function (ch) {

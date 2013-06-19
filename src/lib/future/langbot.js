@@ -48,6 +48,7 @@ var main = {
       mode: 'master',
       name: 'langbot'
     });
+    
   },
   send: function(cmd,args,cb) {
     this.bi.send(cmd,args,cb);

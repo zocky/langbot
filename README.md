@@ -1,6 +1,14 @@
 langbot
 =======
 
+running the bot
+---------------
+    ./langbot start [bot_name]
+Will start a bot, reading configuration from var/[botname].conf. [botname]
+    
+
+
+
 An IRC bot in node.js
 
 commands
@@ -48,8 +56,8 @@ weather forecast from weather underground
     .tell [nick] [message]
 leave a message for a user
 
-API
----
+API for modules
+---------------
 
     exports.setup = function(bot) {
       bot.listen(function(from,msg) {

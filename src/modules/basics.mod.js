@@ -1,4 +1,4 @@
-
+var cp = require('child_process');
 exports.setup = function(bot) {
   bot.addCommand('help', {
     usage: '.help, .help [command]',
@@ -37,6 +37,16 @@ exports.setup = function(bot) {
     action: function(from,respond) {
       bot.pending[from] = bot._pending[from].concat();
       bot.flush(from,respond);
+    }
+  })
+  bot.addCommand('version', {
+    usage: '.version',
+    help: "show the version of the bot",
+    action: function(from,respond) {
+      cp.exec("git show-branch ; echo '|'; git log --pretty=format:'%cD' -n 1", function(err,stderr,stdout) {
+        if (err) return respond('error ' + err + ': ' + stderr);
+        respond(stderr.clean());
+      })
     }
   })
 }

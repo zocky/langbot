@@ -1,6 +1,7 @@
 #!/usr/bin/nodejs
 
 /*
+  lagbot                                  # enter console
   langbot start                           # start the daemon, load all enabled bots
   langbot stop                            # unload all loaded bots, stop the daemon
   langbot restart                         # stop and start the daemon
@@ -26,6 +27,8 @@
   langbot [name] set [option.path] value  # set an option
   langbot [name] unset [option.path]      # unset an option
   langbot [name] reset [option.path]      # reset an option to default
+
+  langbot _start                          # actually start the daemon, don't call this directly
   
 */
 
@@ -33,43 +36,251 @@
 var fs = require('fs');
 var child_process = require('child_process');
 
-var pidfile = '../var/pids.json';
-var running = 
+/*
+  check for fifo too
+*/
 
-if fs.existsSync(
+var pidfile     = '../tmp/dameon.pid';
+var to_deamon   = '../tmp/to.deamon.fifo';
+var fom_deamon  = '../tmp/from.deamon.fifo';
 
-fs.readFileSync()
+var Bififo = function(opt) {
+  this.name = opt.name || this.guid();
+  this.path = opt.path || '/tmp';
+  this.mode = opt.mode;
+  
+  if (this.mode == 'master') var this.tx_mode = 'm2s',this.rx_mode = 's2m';
+  else if (this.mode == 'servant') var this.tx_mode = 's2m',this.rx_mode = 'm2s';
+  else throw ('Bififo: mode must be either master or servant, not '+mode);
+  
 
+  this._connect_tx(opt.tx);
+  this._connect_rx(opt.rx);
 
-var state = {};
-function load() {
-  try {
-    state = JSON.parse(fs.readFileSync('../var/pids.json'));
-  } catch (e) {
-    state = {
-      pid : {}
-      bots : {}
+  this.tx = 
+  this.pending = {};
+}
+Bi.drivers = {
+  fifo: {
+    tx: {
+      connect: function(opt) {
+        var file = opt.path + '/' + this.name + '.' + this.tx_mode + '.fifo';
+        this.tx = createWriteStream(file);
+        this._tx_fifo_file = file;
+      },
+      disconnect: function() {
+        //TODO
+      },
+      say: function(msg) {
+        this.tx.write(msg);
+      }
+    },
+    fifo: {
+      connect: function(opt) {
+        var file = opt.path + '/' + this.name + '.' + this.rx_mode + '.fifo';
+        this.rx = createWriteStream(file);
+      },
+      listen: function(cb) {
+        this.rx.on('data',cb);
+      }
     }
   }
 }
 
-function save() {
-  fs.writeFileSync('../var/pids.json',JSON.stringify(state,null,2));
+Bi.rx = {
 }
 
-load();
 
+Bi.prototype = {
+// GENERALIA
+  nop: function(){},
+  guid: function(path) {
+    return Number(Math.random().toString().substr(2)).toString(36) + '-' + Number(Math.random().toString().substr(2)).toString(36);
+  },
+// LOW-LEVEL COMM  
+  connect_tx: function(opt) {
+    opt = opt || {};
+    var conduit = opt.tx && opt.tx.conduit || opt.conduit || 'fifo';
+    Bi.drivers[conduit].tx.connect.call(this,opt);
+    this._say = Bi.drivers[conduit].tx.say;
+  },
+  connect_rx: function(opt) {
+    opt = opt || {};
+    var conduit = opt.rx && opt.rx.conduit || opt.conduit || 'fifo';
+    Bi.drivers[conduit].rx.listen.call(this,this._listen.bind(this));  
+  },
+  _say: null, // shall be set on connect_tx
+  _listen: function (msg) {
+    try {
+      var obj = JSON.parse(msg);
+      this.listen(obj)
+    } catch (e) {
+      console.log(e);
+    } 
+  },
+  
+  
+send obj, cb
+  register rsvp:cb
+  say obj + rsvp
 
-var id = process.argv[2] || 'default';
+reply rsvp, err, res, cb
+  send re:rsvp + err + res, cb
 
-console.log('starting ',id);
+receive re + err + res
+  cb[re](err,res,reply.bind(rsvp));
 
-var child = child_process.fork('../src/index.js', {
-  cwd: '../src',
-}, function(err,stdout,stderr) {
-  if (err) {
-    console.log('ERROR',err,stderr);
-    console.log(stdout);
+receive obj.cmd
+  
+  
+// MID-LEVEL COMM
+  say: function(obj) {
+    this._say(JSON.stringify(obj));
+  },
+  _send: function(obj,cb) {
+    if (cb) {
+      var rsvp = obj.rsvp = this.guid();
+      this.pending = this.pending || {};
+      this.pending[rsvp] = cb
+    }
+    this.say(obj);
+  },
+  _reply: function(rsvp,err,res,cb) {
+    this._send({
+      re: rsvp,
+      err: err,
+      res: res,
+    },cb)
+  },
+  reply: function(rsvp) {
+    return rsvp ? this.nop : this._reply.bind(rsvp);
+  },
+  listen: function(obj) {
+    if (obj.re) {
+      var cb = this.pending[i];
+      if (!cb) return;
+      cb.call(this,cb.err,cb.res,this.reply(rsvp));
+      delete this.pending[i];
+    } else if (obj.cmd) {
+      var cmd = this.commands[obj.cmd] || this.commands['**'] || Bi.commands[obj.cmd] || this.commands['*'] || Bi.commands['*'] ;
+      if (!cmd) return console.error('unrecognize command '+cmd);
+      cmd.call(this,args,this.reply(rsvp));
+    }
+  },
+// API
+  on: function(cmd,fn) {
+    this.commands[cmd] = fn;
+  },
+  send: function(cmd,args,cb) {
+    this._send({
+      cmd: cmd,
+      args: args,
+    },cb)
   }
-})
+}
+
+var api_main = {
+  init: function() {
+    var running = fs.existsSync(pidfile);
+    this.daemon = running ? fs.readFileSync(pidfile) : null;
+    this.to_deamon = this.createfifo(to_deamon);
+    this.from_daemon = this.createfifo(to_deamon);
+    
+  },
+  start: function(cb) {
+    var me = this;
+    if (this.daemon) return cb('already started');
+    child_process.exec("langbot _start <" + this.fifoout , function(err,stderr,stdout) {
+      cb(' err '+err+': ' + stderr , stdout );
+    })
+  },
+  stopTimeout: null,
+  stop: function(seconds, cb) {
+    if (stopTimeout) return cb('already stopping');
+    
+    var t = setTimeout(timeout*1000,function() {
+      
+    })
+    
+  /*
+    fs.mkfifo(?)
+    child_process.exec("langbot _start" < fifo", function(err,stderr,stdout) {
+      cb({err:err,message:stderr},stdout)
+    }
+  */
+  }
+}
+
+function start(cb) {
+
+}
+
+function stop(cb) {
+  /*
+    say 'stop' to daemon
+    check if it's still running every half a second
+    hard kill after ten seconds
+    call cb
+  */
+}
+
+function say(msg) {
+  /*
+    write to fifo
+  */
+}
+
+if (!cmd) {
+  /*
+    loop input and call self with the entered commandline as arguments, exit on "quit" or whatever
+  */
+}
+
+switch (cmd) {
+  case 'console':
+  
+  case '_start': 
+    break; // continue to daemon code below
+  case 'restart': 
+    if (running) {
+      console.log('stopping daemon');
+      stop(function() {
+        console.log('restarting daemon');
+        stop(function() {
+          console.log('done');
+          process.exit();
+        });
+      });
+    } // else let 'start' handle it
+  case 'start':
+    if (running) {
+      console.err('Already running at pid '+pid);
+      console.err('You may want to use restart');
+      process.exit(-1);
+    }
+    console.log('starting daemon');
+    start(function() {
+      console.log('done');
+      exit();
+    });
+  case 'stop': 
+    if (!running) {
+      console.err('Daemon not running');
+      process.exit(-1);
+    }
+    console.log('stopping daemon');
+    stop(function() {
+      console.log('done');
+      process.exit();
+    });
+  default:
+    say(cmdline);
+    process.exit();    
+}
+
+// exit here and respawn as daemon
+require('daemon')();
+// we're now in daemon instance
+
+
 

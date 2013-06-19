@@ -1,0 +1,75 @@
+#!/usr/bin/nodejs
+
+/*
+  langbot start                           # start the daemon, load all enabled bots
+  langbot stop                            # unload all loaded bots, stop the daemon
+  langbot restart                         # stop and start the daemon
+
+  langbot list                            # show a list of all bots
+
+  langbot load                            # load all enabled bots
+  langbot load [name]                     # load and run a bot
+  
+  langbot unload                          # unload all loaded bots
+  langbot unload [name]                   # stop and unload a bot
+  langbot reload                          # unload and load all loaded bots
+  langbot reload [name]                   # unload and load a bot
+
+  langbot enable [name]                   # autoload this bot next time the daemon is started
+  langbot disable [name]                  # don't autoload this bot next time the daemon is started
+
+  langbot add [name] [nick] [channel]     # add a new bot config
+  langbot remove [name]                   # remove a bot config
+
+  langbot [name] set                      # list settable options
+
+  langbot [name] set [option.path] value  # set an option
+  langbot [name] unset [option.path]      # unset an option
+  langbot [name] reset [option.path]      # reset an option to default
+  
+*/
+
+
+var fs = require('fs');
+var child_process = require('child_process');
+
+var pidfile = '../var/pids.json';
+var running = 
+
+if fs.existsSync(
+
+fs.readFileSync()
+
+
+var state = {};
+function load() {
+  try {
+    state = JSON.parse(fs.readFileSync('../var/pids.json'));
+  } catch (e) {
+    state = {
+      pid : {}
+      bots : {}
+    }
+  }
+}
+
+function save() {
+  fs.writeFileSync('../var/pids.json',JSON.stringify(state,null,2));
+}
+
+load();
+
+
+var id = process.argv[2] || 'default';
+
+console.log('starting ',id);
+
+var child = child_process.fork('../src/index.js', {
+  cwd: '../src',
+}, function(err,stdout,stderr) {
+  if (err) {
+    console.log('ERROR',err,stderr);
+    console.log(stdout);
+  }
+})
+

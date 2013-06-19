@@ -1,14 +1,6 @@
 langbot
 =======
 
-<<<<<<< HEAD
-running the bot
----------------
-    ./langbot start [bot_name]
-Will start a bot, reading configuration from var/[botname].conf. [botname]
-    
-
-
 
 An IRC bot in node.js
 =======
@@ -16,9 +8,6 @@ An IRC bot written in node.js.
 
 running the bot
 ---------------
-
-     ./langbot update [botname]
-Should install/update required npm packages and do git pull, but it doesn't.
 
      ./langbot start [botname]
 Start a bot with config in ./var/botname.config.json. Botname defaults to default.
@@ -28,7 +17,12 @@ Stop a bot. Botname defaults to default.
 
     ./langbot restart [botname]
 Restart a bot. Botname defaults to default.
->>>>>>> e8fa890507f99c0ac3bd3032d54e31748d918269
+
+     ./langbot update
+Update required npm packages and the bot source.
+
+     ./langbot reinstall
+Reinstall required npm packages.
 
 commands
 --------

@@ -45,11 +45,11 @@ function reinstall(cb) {
 }  
 
 function update(cb) {
-  console.log('Updating.');
+  console.log('Updating packages:');
   var cmds = [];
   for (var i in packages) cmds.push('/usr/bin/npm update '+i);
+  cmds.push('echo "Updating langbot:"');
   cmds.push('git pull');
-  console.log(cmds);
   if (cmds.length) {
     shell(cmds.join(';\n'),cb,'Update done.');
   } else cb();

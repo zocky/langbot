@@ -1,6 +1,32 @@
 var data = require('./w.data.js');
 
 exports.setup = function(bot) {
+ bot.addCommand('wik', {
+  
+    usage: '.wik [search terms]',
+    help: 'get a definition from wikipedia',
+    args: /^(?:([\w\-]+):\s*)?(.+)$/,
+    action: function(from,respond,lang,text) {
+      lang = lang || 'en';
+      if (!data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
+  
+      bot.wget('http://'+lang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=500&format=json',{
+        exlimit: 'max',
+        exintro: '1',
+        gsrsearch:text,
+      }, function(error,response,body) {
+        if (error) return respond('error: '+ String(error));
+        try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
+        if (!obj.query || !obj.query.pages) return respond('nothing found');
+        for (var id in obj.query.pages) {
+          var p = obj.query.pages[id];
+          respond.print(p.extract.htmlstrip().shorten(450),'<br>');
+        };
+        respond.flush();
+      });
+    }
+  })
+
   bot.addCommand('w', {
     usage: '.w [word], .w [lang]: [word]',
     help: 'get a definition from wiktionary',

@@ -4,16 +4,16 @@ var fs = require('fs');
 var cp = require('child_process')
 
 /* INSTALL AND UPDATE */
-var packages = require('./packages.json');
+var packages = require('./package.json').dependencies;
 var me = this;
-
+/*
 fs.readdirSync('./src/modules/').forEach(function(n){
   var m = n.match(/^(\w+)\.packages\.json$/);
   if (!m) return;
   var p = request('./src/modules/'+n);
   for (var i in p) packages[i] = p[i];
 })
-
+*/
 var shell = function(cmd,cb,text) {
   var child = cp.spawn('/bin/sh',['-c',cmd],{stdio:'inherit'});
   child.on('error',function(err) {
@@ -28,7 +28,7 @@ var shell = function(cmd,cb,text) {
 
 function install(cb) {
   var cmds = [];
-  for (var i in packages) if (!fs.existsSync('./node_modules/'+i)) cmds.push('/usr/bin/npm install '+i);
+  for (var i in packages) if (!fs.existsSync('./node_modules/'+i)) cmds.push('/usr/bin/npm install '+i+'@'+packages[i]);
   if (cmds.length) {
     console.log('Installing missing packages.');
     shell(cmds.join(';\n'),cb,'Install done.');

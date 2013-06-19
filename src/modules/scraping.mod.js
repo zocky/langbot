@@ -1,5 +1,3 @@
-
-
 var lastUrl = [];
 
 exports.setup = function(bot) {

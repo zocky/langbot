@@ -1,0 +1,28 @@
+{
+  "name": "langbot",
+  "description": "An Open Source IRC Bot written with NodeJS",
+  "version": "0.0.5",
+  "author": "Zoran Obradović (http://www.github.com/zocky)",
+  "contributors ": [{
+    "name": "clinty",
+    "web": "http://www.github.com/clinty"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zocky/langbot"
+  },
+  "main": "langbot",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "dependencies": {
+    "daemon": "1.1.0",
+    "request": "x.x.x",
+    "is-running": "x.x.x",
+    "html-entities": "x.x.x"
+  },
+  "licenses": {
+    "type": "GPL3",
+    "url": "http://www.gnu.org/licenses/gpl-3.0.html"
+  }
+}

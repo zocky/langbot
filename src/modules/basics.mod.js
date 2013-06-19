@@ -39,14 +39,17 @@ exports.setup = function(bot) {
       bot.flush(from,respond);
     }
   })
+  
+  cp.exec("git show-branch ; echo '|'; git log --pretty=format:'%cD (%cr)' -n 1", function(err,stderr,stdout) {
+    if (err) bot.version = 'unknown';
+    bot.version = stderr.clean();
+  })
+  
   bot.addCommand('version', {
     usage: '.version',
     help: "show the version of the bot",
     action: function(from,respond) {
-      cp.exec("git show-branch ; echo '|'; git log --pretty=format:'%cD (%cr)' -n 1", function(err,stderr,stdout) {
-        if (err) return respond('error ' + err + ': ' + stderr);
-        respond(stderr.clean() + ' | modules: ' + Object.keys(bot.loadedModules).join(', '));
-      })
+      respond(bot.version + ' | modules: ' + Object.keys(bot.loadedModules).join(', '));
     }
   })
 }

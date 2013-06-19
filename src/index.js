@@ -1,3 +1,5 @@
-var bot = require('./lib/bot.js').init(process.argv[2]);
+var name = process.argv[2];
+process.title ='langbot '+name;
+var bot = require('./lib/bot.js').init(name);
 
 

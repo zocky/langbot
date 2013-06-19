@@ -71,11 +71,7 @@ leave a message for a user
 
 API for modules
 ---------------
-<<<<<<< HEAD
-=======
-
 Save your module in ./src/modules/modname.mod.js. Store its options in modules.modname in the config file
->>>>>>> e8fa890507f99c0ac3bd3032d54e31748d918269
 
     exports.setup = function(bot,opt) {
       bot.listen(function(from,msg) {

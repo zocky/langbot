@@ -91,9 +91,11 @@ exports.setup = function(bot) {
       var hits = cb ? cb(obj) : obj;
       for (var i in hits) {
         var o = hits[i];
-        var lang = o.language.join(', ');
-        if (o.runtime) lang += ', '+o.runtime[0];
-        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + lang + ' | ' +o.rating, o.plot_simple || o.plot, o.imdb_url);
+        var info = [];
+        if (o.language) info.push(o.language.join(', '));
+        if (o.runtime)  info.push(o.runtime[0]);
+        info = info.join(', ');
+        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + info + ' | ' +o.rating, o.plot_simple || o.plot, o.imdb_url);
       }
       respond.flush();
     })

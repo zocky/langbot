@@ -1,5 +1,7 @@
 #!/usr/bin/nodejs
 
+process.chdir(__dirname);
+
 var fs = require('fs');
 var util = require('util');
 var cp = require('child_process')
@@ -99,7 +101,6 @@ var arg3 = process.argv[5];
 
 /* START / STOP */
 
-process.cwd(__dirname);
 install(function() {
   
   var running = require('is-running');  

@@ -189,10 +189,11 @@ module.exports = {
   printrow: function(nick,left,mid,right) {
     var me = this;
     var maxlen = 430;
-    left = left ? left + ' | ' : '';
-    right = right ? ' | ' + right : '';
-    mid = mid.shortenBytes(maxlen-left.lengthBytes - right.lengthBytes);
-    me.print(nick,left+mid+right,'<br>');
+    var out = [];
+    if (left) out.push(left);
+    if (mid) out.push(mid.shortenBytes(maxlen-(left||'').lengthBytes - (right||'').lengthBytes));
+    if (right) out.push(right);
+    me.print(nick,out.join(' | '),'<br>');
   },
   clear: function(nick) {
     this.pending[nick] = [];
@@ -239,17 +240,26 @@ module.exports = {
     msg = msg.clean();
     var m = msg.match(/^(\w+)(.*)$/);
     if (!m) return;
-    var cmd = this.commands[m[1]];
-    if (!cmd) return;
-    if (cmd.args instanceof RegExp) {
-      var m = msg.replace(/^\w+/,'').trim().match(cmd.args);
-      if (!m) return respond ('bad args, usage: '+cmd.usage);
-      var args = Array.make(m).slice(1);
-    } else {
-      var text = m[2].trim();
-      var args = text.split(/\s+/);
-      args.unshift(text);
+    var cmd = m[1];
+    var text = m[2].clean();
+    var commands = this.commands[cmd];
+    if (!commands) return;
+    for (var i in commands) {
+      var c = commands[i];
+      if (c.args instanceof RegExp) {
+        var m = text.match(c.args);
+        if (!m) continue;
+        var args = m.slice(1);
+        var command = c;
+        break;
+      } else {
+        var command = c;
+        var args = [text].concat(text.split(/ /));
+        break;
+      }
     }
+    if (!command) return respond ('bad args, usage: '+bot.usage(cmd));
+    
     var me = this;
     var pending = me.pending[from];
     respond.print = me.print.bind(me,from);
@@ -264,29 +274,60 @@ module.exports = {
 
     me._pending[from] = (me.pending[from]||[]).concat();
     me.pending[from] = [];
-    cmd.action.apply(this,args);
+    command.action.apply(this,args);
+  },
+  usage:function(cmd) {
+    var command = this.commands[cmd];
+    return command 
+    ? command.reverse().map(function(n){
+       return n.usage + ' ' + n.help
+      })
+      .join(' | ')
+    : 'unknown command '+cmd;
   },
   present: function() { return false }, //overriden in modules/users.js
   commands: {},
-  addCommand: function (name,opt) {
-    this.commands[name] = opt;
+  command: function(name,opt) {
+    this.addCommand(name,opt);
   },
-  wget: function(options,params,cb) {
+  addCommand: function (name,opt) {
+    this.commands[name] = [opt].concat(this.commands[name] || []);
+  },
+  _wget: function(options,cb) {
     var addParams = function(url,params) {
       return url + (url.indexOf('?')>-1 ? '&' : '?') + qs.stringify(params);
     }
-    if (typeof options == 'string' && typeof params == 'object') {
-      var U = options = addParams(options,params);
-    } else {
-      if (options.params) {
-        var U = options.url = addParams(options.url,options.params);
-      } else {
-        var U = options.url || options;
-      }
-      cb = params;
-    }
+    if (options.params) {
+      options.url = addParams(options.url,options.params);
+    } 
+    var U = options.url;
     return request(options,function(error,response,body) {
       cb(error,response,body,U);
     });
-  }
+  },
+  wget: function(url,params,cb) {
+    if (typeof url == 'string' && typeof params == 'object') {
+      var options = {
+        url: url,
+        params: params
+      }
+    } else if (typeof url == 'string') {
+      var options = url;
+      cb = params;
+    } else throw('bad params for wget');
+    this._wget(options,cb);
+  },
+  wgetjson: function(url,params,cb) {
+    if (typeof url == 'string' && typeof params == 'object') {
+      var options = {
+        url: url,
+        params: params,
+        json:true
+      }
+    } else if (typeof url == 'string') {
+      var options = url;
+      cb = params;
+    } else throw('bad params for wgetjson');
+    this._wget(options,cb);
+  },
 }

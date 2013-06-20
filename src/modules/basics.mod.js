@@ -1,4 +1,5 @@
 var cp = require('child_process');
+var moment = require('moment');
 exports.setup = function(bot) {
   bot.addCommand('help', {
     usage: '.help, .help [command]',
@@ -14,7 +15,7 @@ exports.setup = function(bot) {
           '<br>',' /ignore'
         );
       if (!bot.commands[cmd]) return respond ('unknown command '+cmd +', try .help');
-      respond.flush(bot.commands[cmd].usage + ' | ' + bot.commands[cmd].help,'<br>','for more help, see a psychiatrist');
+      respond.flush(bot.usage(cmd));
     }
   })
 
@@ -22,7 +23,8 @@ exports.setup = function(bot) {
     usage: '.about',
     help: "what about .about?",
     action: function(from,respond,text,cmd) {
-      respond.print("I'm a langbot bot for " + bot.config.channel,'|');
+      var uptime = moment(Date.now() - process.uptime()*1000).fromNow(true);
+      respond.print("I'm a langbot bot for " + bot.config.channel,' running for '+uptime+' |');
       respond.print(bot.config.master ? 'My master is '+bot.config.master + '.': 'I have no master.', "|");
       respond.print("If you kick me, I won't come back unless you /invite me.",'|');
       respond.print("Source, docs, bug reports and feature requests at: https://github.com/zocky/langbot");

@@ -79,25 +79,30 @@ exports.setup = function(bot) {
     }
   })
 
+  var imdb = function(from,respond,text,cb) {
+    bot.wgetjson('http://www.imdbapi.org/', {
+      q:text,
+      limit:10
+    }, function (error, response, obj,url) {
+      if (error) return respond('error: '+String(error));
+      if (!obj.length) return respond('nothing found '+url);
+      var obj = obj.filter(Boolean);
+      if (!obj.length) return respond('nothing found '+url);
+      var hits = cb ? cb(obj) : obj;
+      for (var i in hits) {
+        var o = hits[i];
+        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + o.rating, o.plot_simple || o.plot, o.imdb_url);
+      }
+      respond.flush();
+    })
+  }
+
   bot.addCommand('imdb', {
     usage: '.imdb [movie]',
     args: /^(.+)$/,
     help: 'get information about a movie on imdb',
     action: function(from,respond,text) {
-      console.log('imdbbbbbbbbbb',text);
-      bot.wgetjson('http://www.imdbapi.org/', {
-        q:text,
-        limit:10
-      }, function (error, response, obj,url) {
-        if (error) return respond('error: '+String(error));
-        console.log(obj);
-        if (!obj.length) return respond('nothing found '+url);
-        for (var i in obj) {
-          var o = obj[i];
-          respond.printrow( o.title + ' (' + o.year + ')' + ' | ' + o.rating, o.plot_simple || o.plot, o.imdb_url);
-        }
-        respond.flush();
-      });
+      imdb(from,respond,text);
     }
   });
   bot.addCommand('imdb', {
@@ -105,22 +110,12 @@ exports.setup = function(bot) {
     help: 'get information about a movie on imdb',
     args: /^(.*)(?!$) (\d\d\d\d)$/,
     action: function(from,respond,text,year) {
-      bot.wgetjson('http://www.imdbapi.org/', {
-        q:text,
-        limit:10
-      }, function (error, response, obj) {
-        if (error) return respond('error: '+String(error));
-        if (!obj.length) return respond('nothing found '+url);
+      imdb(from,respond,text, function(obj) {
         var hits = obj.filter(function(n) {return n.year == year});
-        if (hits.length) obj = hits;
-        for (var i in obj) {
-          var o = hits[i];
-          if(!o) continue;
-          var info = i||hits.length ? '' :' nothing found in year '+year + ' | ';
-          respond.printrow( info + o.title + ' (' + o.year + ')' + ' | ' + o.rating, o.plot_simple || o.plot, o.imdb_url);
-        }
-        respond.flush();
-      });
+        if (hits.length) return hits;
+        obj[0].extra = '[nothing found in year '+year + '] ';
+        return obj;
+      })
     }
   });
 

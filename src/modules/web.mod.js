@@ -1,5 +1,14 @@
 var lastUrl = [];
 
+function fixedFromCharCode (codePt) {
+    if (codePt > 0xFFFF) {
+        codePt -= 0x10000;
+        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
+    } else {
+        return String.fromCharCode(codePt);
+    }
+}
+
 exports.setup = function(bot) {
   bot.listen(function(from,msg) {
     var m = msg.match(/\bhttps?:\/\/\S+/);
@@ -26,6 +35,7 @@ exports.setup = function(bot) {
   })
 
   bot.addCommand('u', {
+    
     usage: '.u [search terms]',
     help: 'lookup unicode table',
     args: /^(.+)$/,
@@ -41,12 +51,11 @@ exports.setup = function(bot) {
         
         var res = body.clean()
         .extract(/<tr class="row[01]">(.*?)<\/tr>/g,'$1')
-        .log('tr')
         .extract(/<a.*?>(.*?)<\/a>.*?<a.*?>U\+(.*?)<\/a><\/td>.*?<td>(.*?)<\/td>/,function($0,$1,$2,$3) {
           var code = 'U+'+$2;
           var name = $3.toLowerCase();
           var C = parseInt($2,16);
-          var char = String.fromCharCode(C);
+          var char = fixedFromCharCode(C);
           if (char == text) char = ''+char+'';
           var html = '&#'+C+';';
           return char + ' ('+code + ' '+html+' '+name + ') |';

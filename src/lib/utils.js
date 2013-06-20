@@ -256,13 +256,11 @@ Object.defineProperties(String.prototype, {
       if (typeof max == 'string') max = max.charCodeAt(0);
       if (typeof start == 'string') start = start.charCodeAt(0);
       var dif = start-min;
-      console.log(min,max,start);
       for (var i = 0; i<this.length;i++) {
         var c = this.charCodeAt(i);
         var d = c >= min && c <= max ? dif + c : c;
         ret += String.fromCharCode(d);
       }
-      console.log('ret',ret)
       return ret;
     }
   },

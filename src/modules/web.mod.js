@@ -91,7 +91,9 @@ exports.setup = function(bot) {
       var hits = cb ? cb(obj) : obj;
       for (var i in hits) {
         var o = hits[i];
-        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + o.rating, o.plot_simple || o.plot, o.imdb_url);
+        var lang = o.language.join(', ');
+        if (o.runtime) lang += ', '+o.runtime[0];
+        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + lang + ' | ' +o.rating, o.plot_simple || o.plot, o.imdb_url);
       }
       respond.flush();
     })
@@ -100,14 +102,14 @@ exports.setup = function(bot) {
   bot.addCommand('imdb', {
     usage: '.imdb [movie]',
     args: /^(.+)$/,
-    help: 'get information about a movie on imdb',
+    help: 'Find a movie on imdb.com ...',
     action: function(from,respond,text) {
       imdb(from,respond,text);
     }
   });
   bot.addCommand('imdb', {
     usage: '.imdb [movie] [year]',
-    help: 'get information about a movie on imdb',
+    help: '... from a particular year',
     args: /^(.*)(?!$) (\d\d\d\d)$/,
     action: function(from,respond,text,year) {
       imdb(from,respond,text, function(obj) {

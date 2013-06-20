@@ -1,14 +1,5 @@
 var lastUrl = [];
 
-function fixedFromCharCode (codePt) {
-    if (codePt > 0xFFFF) {
-        codePt -= 0x10000;
-        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
-    } else {
-        return String.fromCharCode(codePt);
-    }
-}
-
 exports.setup = function(bot) {
   bot.listen(function(from,msg) {
     var m = msg.match(/\bhttps?:\/\/\S+/);
@@ -55,7 +46,7 @@ exports.setup = function(bot) {
           var code = 'U+'+$2;
           var name = $3.toLowerCase();
           var C = parseInt($2,16);
-          var char = fixedFromCharCode(C);
+          var char = String.fromCodePoint(C);
           if (char == text) char = ''+char+'';
           var html = '&#'+C+';';
           return char + ' ('+code + ' '+html+' '+name + ') |';
@@ -105,6 +96,20 @@ exports.setup = function(bot) {
         if (!obj.Title) return respond('nothing found ');
         return respond( obj.Title + ' (' + obj.Year + ')' + ' | ' + obj.imdbRating + ' | ' + 'http://imdb.com/title/' + obj.imdbID + ' | ' + obj.Plot );
       });
+    }
+  });
+
+  bot.addCommand('re', {
+    usage: '.re /[regexp]/[opt] [string]',
+    help: 'regexp match',
+    args: /^\/((?:\\.|.|\[[^\[]*\]).+)\/([gim]{0,3}) (.+)$/,
+    action: function(from,respond,re,opt,str) {
+      try {
+        var re = new RegExp(re,opt);
+        respond(JSON.stringify(str.match(re)));
+      } catch (e) {
+        respond(e);
+      }
     }
   });
 

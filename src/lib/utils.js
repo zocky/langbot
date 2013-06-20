@@ -126,7 +126,59 @@ Object.defineProperty(Array.prototype, 'log', {
 });
 
 
-
+Object.defineProperties(String.prototype, {
+  'lengthBytes': {
+    enumerable: false,
+    get: function() {
+      return encodeURI(this).split(/%..|./).length - 1;
+    }
+  },
+  'leftBytes': {
+    enumerable: false,
+    value: function(n) {
+      var short = encodeURI(this).split(/(%..|.)/,2*n).join('');
+      var ret = false;
+      while (!ret) {
+        try {
+          ret = decodeURI(short);
+          break;
+        } catch (e) {
+          short = short.replace(/%..$|.$/,'');
+        }
+      }
+      return ret;
+    }
+  },
+  'shortenBytes': {
+    enumerable: false,
+    value: function(n) {
+      var words = this.clean().split(/ /);
+      var ret = words.shift();
+      var len = ret.lengthBytes;
+      while (words.length) {
+        var w = words.shift();
+        var l = w.lengthBytes + 1;
+        if (len+l>n) break;
+        ret += ' ' + w;
+        len += l;
+      }
+      return ret;
+    }
+  },
+});
+Object.defineProperties(String, {
+  'fromCodePoint': {
+    enumerable: false,
+    value: function(codePt) {
+      if (codePt > 0xFFFF) {
+        codePt -= 0x10000;
+        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
+      } else {
+        return String.fromCharCode(codePt);
+      }
+    },
+  }
+})
 Object.defineProperties(String.prototype, {
   'camel': {
     enumerable: false,
@@ -259,7 +311,7 @@ Object.defineProperties(String.prototype, {
       for (var i = 0; i<this.length;i++) {
         var c = this.charCodeAt(i);
         var d = c >= min && c <= max ? dif + c : c;
-        ret += String.fromCharCode(d);
+        ret += String.fromCodePoint(d);
       }
       return ret;
     }

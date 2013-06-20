@@ -20,7 +20,7 @@ exports.setup = function(bot) {
         if (!obj.query || !obj.query.pages) return respond('nothing found');
         for (var id in obj.query.pages) {
           var p = obj.query.pages[id];
-          respond.print(p.extract.htmlstrip().shorten(450),'<br>');
+          respond.printrow('',p.extract.htmlstrip(),p.fullurl);
         };
         respond.flush();
       });

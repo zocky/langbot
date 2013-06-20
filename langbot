@@ -71,10 +71,10 @@ install(function() {
       cb && cb();
       return;
     }
-    process.stdout.write('Stopping '+bot+' ');
+    process.stdout.write('Stopping '+bot+'. ');
     process.kill(pid,'SIGINT');
     var cnt = 0;
-    console.log('waiting');
+    console.log('Waiting');
     var t = setInterval(function() {
       cnt++;
       process.stdout.write(".");

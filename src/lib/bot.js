@@ -146,7 +146,7 @@ module.exports = {
   _pending: {},
   _print: function(nick,text) {
 
-    text = String(text).clean().shorten(420);
+    text = String(text).clean().leftBytes(430);
     var pending = this.pending[nick];
     switch(pending[pending.length-1]) {
     case '':
@@ -159,7 +159,6 @@ module.exports = {
       pending.push(text);
     }
   },
-  
   print: function(nick) {
     var me = this;
     Array.make(arguments).slice(1).flatten().filter(Boolean).forEach(function(n) {
@@ -171,6 +170,14 @@ module.exports = {
     Array.make(arguments).slice(1).flatten().filter(Boolean).forEach(function(n) {
       me.print(nick,n,'<br>');
     })
+  },
+  printrow: function(nick,left,mid,right) {
+    var me = this;
+    var maxlen = 430;
+    left = left ? left + ' | ' : '';
+    right = right ? ' | ' + right : '';
+    mid = mid.shortenBytes(maxlen-left.lengthBytes - right.lengthBytes);
+    me.print(nick,left+mid+right,'<br>');
   },
   clear: function(nick) {
     this.pending[nick] = [];
@@ -234,6 +241,7 @@ module.exports = {
     respond.flush = me.flush.bind(me,from,respond);
     respond.printbr = me.printbr.bind(me,from);
     respond.flushbr = me.flushbr.bind(me,from,respond);
+    respond.printrow = me.printrow.bind(me,from);
 
     
     args.unshift(respond);

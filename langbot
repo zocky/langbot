@@ -1,7 +1,9 @@
 #!/usr/bin/nodejs
 
 var fs = require('fs');
+var util = require('util');
 var cp = require('child_process')
+require('./src/lib/utils.js')
 
 /* INSTALL AND UPDATE */
 var packages = require('./package.json').dependencies;
@@ -14,23 +16,58 @@ fs.readdirSync('./src/modules/').forEach(function(n){
   for (var i in p) packages[i] = p[i];
 })
 */
+
+var readdir = fs.readdirSync;
+var writeFile = fs.writeFileSync;
+var exists = fs.existsSync;
+var readFile = fs.readFileSync;
+var unlink = fs.unlinkSync;
+var ls = function(path) {
+  var steps = path.split('/');
+  if (steps[steps.length-1].match(/[*?]/)) var glob = steps.pop();
+  path = steps.join('/');
+  var files = readdir(path);
+  if (!glob) return files;
+  
+  var re = RegExp.fromGlob(glob);
+  return files.map(function(n) {
+    return n.match(re);  
+  })
+  .filter(Boolean);
+}
+var print = function(str) {
+  util.print(str);
+  print.cur+=str.length;
+}
+print.cur = 0;
+
+var println = function(str) { util.puts(str||''); print.cur = 0;}
+var printat = function(at,str) { 
+  if (at < print.cur) println();
+  var p = "          " /*10*/; p=p+p+p+p /*40*/; p=p+p+p+p; /*160*/; p=p+p+p+p; /*640*/;
+  p = p.substr(0,at-print.cur);
+  print(p+str);
+}
+var printf = function() { print( util.format.apply(util,arguments)); }
+var printfat = function(at) { printat( at, util.format.apply(util,Array.make(arguments).slice(1))); }
+
 var shell = function(cmd,cb,text) {
   var child = cp.spawn('/bin/sh',['-c',cmd],{stdio:'inherit'});
   child.on('error',function(err) {
-    console.log(err);
+    println(err);
     exit();
   });
   child.on('close',function() {
-    console.log(text||'done');
+    println(text||'done');
     cb();
   });
 }
 
 function install(cb) {
   var cmds = [];
-  for (var i in packages) if (!fs.existsSync('./node_modules/'+i)) cmds.push('/usr/bin/npm install '+i+'@'+packages[i]);
+  for (var i in packages) if (!exists('./node_modules/'+i)) cmds.push('/usr/bin/npm install '+i+'@'+packages[i]);
   if (cmds.length) {
-    console.log('Installing missing packages.');
+    println('Installing missing packages.');
     shell(cmds.join(';\n'),cb,'Install done.');
   } else cb();
 }  
@@ -38,14 +75,14 @@ function install(cb) {
 function reinstall(cb) {
   var cmds = [];
   for (var i in packages) cmds.push('/usr/bin/npm install '+i);
-  console.log('Reinstalling all packages.');
+  println('Reinstalling all packages.');
   if (cmds.length) {
     shell(cmds.join(';\n'),cb,'Reinstall done.');
   } else cb();
 }  
 
 function update(cb) {
-  console.log('Updating packages:');
+  println('Updating packages:');
   var cmds = [];
   for (var i in packages) cmds.push('/usr/bin/npm update '+i);
   cmds.push('echo "Updating langbot:"');
@@ -56,7 +93,9 @@ function update(cb) {
 }
 
 var cmd = process.argv[2];
-var bot = process.argv[3] || 'default';
+var arg1 = process.argv[3];
+var arg2 = process.argv[4];
+var arg3 = process.argv[5];
 
 /* START / STOP */
 
@@ -65,80 +104,180 @@ install(function() {
   
   var running = require('is-running');  
 
-  function stop(cb) {
-    if (!pid) {
-      console.log(bot + ' is not running.');
-      cb && cb();
+  function stop(name,cb)
+   {
+    var bot = bots[name];
+    if (!bot) {
+      printf('No such bot %s.\n',name);
+      cb && cb(name);
+      return;
+    }    
+    if (!bot.pid) {
+      printf('Bot %s is not running.\n',name);
+      cb && cb(name);
       return;
     }
-    process.stdout.write('Stopping '+bot+'. ');
-    process.kill(pid,'SIGINT');
+    printf('Stopping %s:\n',name);
+    process.kill(bot.pid,'SIGINT');
     var cnt = 0;
-    console.log('Waiting');
     var t = setInterval(function() {
       cnt++;
-      process.stdout.write(".");
-      var r = running(pid);
+      printf('Waiting for %s...\n',name);
+      var r = running(bot.pid);
       if (cnt == 20 || !r) {
-        if (r)  {
-          process.stdout.write('. Timed out. \n');
-          console.log(bot+' refuses to stop. Will kill.');
-          process.kill(pid,'SIGHUP');
+        if (r) {
+          printf('%s timed out. Will kill.\n',name);
+          process.kill(bot.pid,'SIGHUP');
         } else {
-          process.stdout.write('. Stopped. \n');
+          printf('Bot %s stopped. \n',name);
         }
-        if (fs.existsSync(pidfile)) fs.unlinkSync(pidfile);
-        pid = null;
+        if (exists(bot.pidfile)) unlink(bot.pidfile);
+        bot.pid = null;
         clearInterval(t);
-        cb && cb();
+        cb && cb(name);
+      };
+    },1000);
+  }
+  function start(name,cb) {
+    var bot = bots[name];
+    if (!bot) {
+      printf('No such bot %s.\n',name);
+      cb && cb(name);
+      return;
+    }    
+    if (bot.pid) {
+      printf('Bot %s is already running.\n',name);
+      cb && cb(name);
+      return;
+    }
+    printf('Starting %s:\n',name);
+    require('daemon').daemon('./src/index.js',[name],{
+      stdout: process.stdout,
+      stderr: process.stderr,
+    });
+
+    var cnt = 0;
+    var t = setInterval(function() {
+      cnt++;
+      printf('Waiting for %s...\n',name);
+      var r = exists(bot.pidfile);
+      if (cnt == 20 || r) {
+        if (!r) {
+          printf('%s timed out. Will kill.\n',name);
+          process.kill(bot.pid,'SIGHUP');
+        } else {
+          printf('Bot %s started. \n',name);
+        }
+        if (r) bot.pid = Number(readFile(bot.pidfile));
+        clearInterval(t);
+        cb && cb(name);
+      };
+    },1000);
+  }
+  function xstart(name,cb) {
+    var bot = bots[name];
+    if (!bot) {
+      printf('No such bot %s.\n',name);
+      cb && cb(name);
+      return;
+    }    
+    if (bot.pid) {
+      printf('Bot %s is already running at pid %d.\n',name,bot.pid);
+      cb && cb(name);
+      return;
+    }
+
+    printf('Starting %s: ',name);
+
+    require('daemon').daemon('./src/index.js',[name],{
+      stdout: process.stdout,
+      stderr: process.stderr,
+    });
+    
+    var cnt = 0;
+    println('Waiting');
+    var t = setInterval(function() {
+      cnt++;
+      print(".");
+      var r = exists(bot.pidfile);
+      if (cnt == 20 || r) {
+        if (r) {
+          print('. Timed out. \n');
+          println(name+' refuses to start. Will kill.');
+          process.kill(bot.pid,'SIGHUP');
+        } else {
+          printf('. Started %s. \n');
+        }
+        if (r) bot.pid = Number(readFile(bot.pidfile));
+        clearInterval(t);
+        cb && cb(name);
       };
     },1000);
   }
 
-  function start(cb) {
-    if (pid) {
-      console.log(bot + ' is already running at pid '+pid+'.');
-      cb && cb();
-      return;
-    }
-    require('daemon').daemon('./src/index.js',[bot],{
-      stdout: process.stdout,
-      stderr: process.stderr,
-    });
-  }
-
   function exit() {
-    console.log('Done');
+    println('Bye.');
     process.exit();
   }
-  
-  
+
+  function status(cb) {
+    println('--------------------------------------------------------------------------');
+    println('Your bots:');
+    println('--------------------------------------------------------------------------');
+    
+    for (var i in bots) {
+      var b = bots[i];
+      print(i);
+      if (b.pid) {
+        printfat(20,'[pid %d]',b.pid);
+        printat (70,'LIVE');
+      } else {
+        printat(20,'[no pid file]');
+        printat(70,'DEAD');
+      }
+      println('');
+    } 
+    println('--------------------------------------------------------------------------');
+    println('\nusage: langbot [start|stop|restart] [bot_name], langbot update, langbot reinstall');
+    cb && cb();
+  }
+
+  var bots = {};
+  ls('./etc/*.config.json')
+  .forEach(function(n) {
+    var name = n[1];
+    var pidfile = './var/'+name+'.pid';
+    var pid = exists(pidfile) && Number(readFile(pidfile));
+    if (pid && !running(pid)) unlink(pidfile), pid = null;
+    var b = bots[name] = {
+      conf: './etc/'+name+'.config.json',
+      state: './var/'+name+'.config.json',
+      pidfile: pidfile,
+      pid: pid
+    }
+  })
+
 
   if (!cmd) {
-    console.error('usage: langbot start|stop|restart [bot_name]');
-    process.exit();
+    status(exit);
   }
 
-  /* REALLY START */
-
-  var conffile = './etc/'+bot+'.config.json';
-  if (!fs.existsSync(conffile)) {
-    console.error('no such bot '+bot);
-    process.exit();
-  };
-
-
-  var pidfile = './var/'+bot+'.pid';
-  var pid = fs.existsSync(pidfile) ? Number(fs.readFileSync(pidfile)) : null;
-  if (pid) console.log('Found pid '+pid);
-  if (!running(pid)) {
-    console.log('Found stale pid file. Will delete.');
-    fs.unlinkSync(pidfile);
-    pid = null;
+  function eachBot(fn,cb) {
+    var cnt = 0;
+    for (var i in bots) {
+      cnt ++;
+      fn(bots[i],i,function(){
+        cnt--;
+        !cnt && cb && cb();
+      });
+    }
+    !cnt && cb && cb();
   }
-
 
   switch (cmd) {
+  case 'status':
+    status(exit);
+    break;
   case 'reinstall':
     reinstall(exit);
     break;
@@ -146,15 +285,41 @@ install(function() {
     update(exit);
     break;
   case 'start':
-    start(exit);
+  case 'summon':
+    if (arg1) {
+      start(arg1,exit);
+    } else {
+      eachBot(function(bot,i){
+      if (bot.pid) return printf('%s is already LIVE. Skipping.\n',i);
+        start(i);
+      });
+    }
     break;
   case 'stop':
-    stop(exit);
+  case 'kill':
+    if (arg1) {
+      stop(arg1,exit);
+    } else {
+      eachBot(function(bot,i){
+        if (!bot.pid) return printf('%s is already DEAD. Skipping.\n',i);
+        stop(i);
+      });
+    }
     break;
   case 'restart':
-    stop(function() {
-      start(exit);
-    });
+  case 'reincarnate':
+    if (arg1) {
+      stop(arg1,function() {
+        start(arg1,exit);
+      });
+    } else {
+      eachBot(function(bot,i){
+        if (!bot.pid) return printf('%s is DEAD. Skipping.\n',i);
+        stop(i,function() {
+          start(i,exit);
+        });
+      });
+    }
     break;
   default:
     console.error('usage: langbot start|stop|restart [bot_name]');

@@ -346,3 +346,22 @@ Object.defineProperty(Array,'make', {
     return Array.prototype.slice.call(arr,0);
   }
 });
+
+RegExp.escape = function(str) {
+  return str.replace(/([\\^$+*?.()|{}[\]])/g,'\\$1');
+}
+
+RegExp.fromGlob = function fromGlob (glob) {
+  return new RegExp(
+    '^' 
+  + glob
+    .split(/([*?])/)
+    .map(function(n) {
+      if (n=='*') return '(.*)';
+      if (n=='?') return '(.)';
+      return RegExp.escape(n)
+    })
+    .join('') 
+  + '$'
+  );
+}

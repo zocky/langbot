@@ -4,6 +4,7 @@ var irc = require('irc');
 var http = require('http');
 var request = require('request');
 var qs = require('querystring');
+var util = require('util');
 
 module.exports = {
   client: null,
@@ -15,7 +16,7 @@ module.exports = {
     pass: undefined
   },
   report: function(a1,a2) {
-    console.error(this.config.master,a1+':',a2);
+    //console.error(this.config.master,a1+':',a2);
     if (this.config.master && this.present(this.config.master)) this.say(this.config.master,a1+': '+a2);
   },
   save: function() {
@@ -45,7 +46,7 @@ module.exports = {
     })
   },
   loadModule: function(name) {
-    console.log('Loading module',name+'.');
+//    console.log('Loading module',name+'.');
     var opt = this.config.modules && this.config.modules[name] || {};
     if (!opt.disabled) {
       require('../modules/'+name+'.mod.js').setup(this,opt);
@@ -101,7 +102,7 @@ module.exports = {
           });
         }
       } else {
-        for (var i in me.listeners) me.listeners[i](from,message);
+        me.emit('say',from,message);
       }
     });
     me.client.addListener('pm', function (from, message) {
@@ -138,9 +139,23 @@ module.exports = {
       this.client.say(a1,a2);
     }
   },
-  listeners: [],
+  listeners: {
+    say: [],
+    action: [],
+    command: [],
+    all: [],
+    pm: []
+  },
+  emit: function(type) {
+    var args = Array.make(arguments).slice(1);
+//    console.log('args',args);
+    for (var i in this.listeners[type]) this.listeners[type][i].apply(this,args);
+  },
+  on: function(type,fn) {
+    this.listeners[type].push(fn);
+  },
   listen: function(fn) {
-    this.listeners.push(fn);
+    this.on('say',fn);
   },
   pending: {},
   _pending: {},

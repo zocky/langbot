@@ -21,10 +21,10 @@ Display the current status of your bots.
 Start a bot with config in ./var/[botname].config.json. All bots will be started by default.
 
 ##### `./langbot stop [botname]`
-Stop a bot. All bots will be stopped by default.
+Stop a bot. All running bots will be stopped by default.
 
 ##### `./langbot restart [botname]`
-Restart a bot. All bots will be stopped by default.
+Restart a bot. All running bots will be restarted by default.
     
 ##### `./langbot update`
 Update required npm packages and the bot source.

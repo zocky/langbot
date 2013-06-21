@@ -139,8 +139,8 @@ be used to simplify your code and to overload commands provided by other modules
 ### handle events
 You can handle both IRC events as provided by the [node-irc library](https://github.com/martynsmith/node-irc) and 
 custom events provided by langbot.
-##### bot.client.on(event, handler)
+##### `bot.client.on(event, handler)`
 Handle IRC events. See [docs](https://node-irc.readthedocs.org/en/latest/API.html#events).
-##### bot.on(event, handler)
+##### `bot.on(event, handler)`
 Handle custom events. For now this is only:
 - `bot.on('say',function(from,text) {...} )` - listen to the channel, ignoring commands issued to the bot.

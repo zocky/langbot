@@ -17,13 +17,16 @@ running the bot
 ---------------
 
     ./langbot start [botname]
-Start a bot with config in ./var/botname.config.json. Botname defaults to default.
+Start a bot with config in ./var/[botname].config.json. All bots will be started by default.
 
     ./langbot stop [botname]
-Stop a bot. Botname defaults to default.
+Stop a bot. All bots will be stopped by default.
 
     ./langbot restart [botname]
-Restart a bot. Botname defaults to default.
+Restart a bot. All bots will be stopped by default.
+
+    ./langbot status
+Display the current status of your bots.
 
     ./langbot update
 Update required npm packages and the bot source.

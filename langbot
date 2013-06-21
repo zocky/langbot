@@ -175,46 +175,6 @@ install(function() {
       };
     },1000);
   }
-  function xstart(name,cb) {
-    var bot = bots[name];
-    if (!bot) {
-      printf('No such bot %s.\n',name);
-      cb && cb(name);
-      return;
-    }    
-    if (bot.pid) {
-      printf('Bot %s is already running at pid %d.\n',name,bot.pid);
-      cb && cb(name);
-      return;
-    }
-
-    printf('Starting %s: ',name);
-
-    require('daemon').daemon('./src/index.js',[name],{
-      stdout: process.stdout,
-      stderr: process.stderr,
-    });
-    
-    var cnt = 0;
-    println('Waiting');
-    var t = setInterval(function() {
-      cnt++;
-      print(".");
-      var r = exists(bot.pidfile);
-      if (cnt == 20 || r) {
-        if (r) {
-          print('. Timed out. \n');
-          println(name+' refuses to start. Will kill.');
-          process.kill(bot.pid,'SIGHUP');
-        } else {
-          printf('. Started %s. \n');
-        }
-        if (r) bot.pid = Number(readFile(bot.pidfile));
-        clearInterval(t);
-        cb && cb(name);
-      };
-    },1000);
-  }
 
   function exit() {
     println('Bye.');

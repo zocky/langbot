@@ -10,10 +10,12 @@ exports.setup = function(bot) {
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
         var res = body.clean().extract(/<dt[^>]*>.*?<\/dd>/gi,'$&')
-        .filter(Boolean).map(function(n) {
-          return String(n).htmlstrip();
+        .filter(Boolean);
+        if (!res.length) return respond('not found');;
+        res.forEach(function(n) {
+          respond.printrow('', String(n).htmlstrip(),url);
         });
-        respond.flushbr(res.length ? res : 'not found');
+        respond.flush();
       });
     }
   })

@@ -161,7 +161,7 @@ module.exports = {
   _pending: {},
   _print: function(nick,text) {
 
-    text = String(text).clean().leftBytes(430);
+    text = String(text).clean().leftBytes(480);
     var pending = this.pending[nick];
     switch(pending[pending.length-1]) {
     case '':

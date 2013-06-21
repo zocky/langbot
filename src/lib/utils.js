@@ -79,12 +79,21 @@ Object.defineProperty(Array.prototype, 'extract', {
   enumerable:false,
   value: function(re,rpl) {
     return this.map(function(n) {
+      if (!Array.isArray(n)) n = String(n);
       return n.extract(re,rpl);
-    }).filter(function(n) {
-      return !!n;
+    }).filter(Boolean);
+  }
+});
+
+Object.defineProperty(Array.prototype, 'grep', {
+  enumerable:false,
+  value: function(re) {
+    return this.filter(function(n) {
+      return String(n).match(re);
     });
   }
 });
+
 
 Object.defineProperty(Array.prototype, 'pluck', {
   enumerable:false,

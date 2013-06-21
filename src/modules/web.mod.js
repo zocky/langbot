@@ -19,8 +19,15 @@ exports.setup = function(bot) {
         if (error) return respond('error: '+String(error));
         if(response.headers['content-type'].substr(0,9)!='text/html') return respond('content-type: '+response.headers['content-type'] + ' | '+url);
         
+        
         var title = body.extract(/<title\s*>\s*(.*?)\s*<\/title\s*>/i,'$1').htmldecode() || 'could not find title';
-        return respond(title + ' | ' + url );
+        var description = (body
+        .extract(/<meta .*?>/gi)
+        .grep(/\b(meta|property)\s*=\s*"[^"]*description"/)
+        .extract(/\bcontent\s*=\s*"([^"]+)"/,'$1')
+        .shift() || '').htmlstrip();
+        respond.printrow(title,description,url );
+        respond.flush();
       });
     }
   })

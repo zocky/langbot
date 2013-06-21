@@ -123,13 +123,13 @@ When a command is issued and arguments are matched, the `action:` function is ca
 - `function (from,respond,arg1,arg2) { ... }` - two arguments
 - `function (from,respond,text,arg1,arg2) { ... }` - no `args:` option provided
 
-User the `respond` object to provide feedback. Its exact behavior depends on how the command was issued. 
+Use the `respond` object to provide feedback. Its exact behavior depends on how the command was issued. 
 You can use it in several different ways:
 - `respond(args...)` - send text to the user immediately
 - `respond.print(args...)`- add text to the user's queue; you can use special tokens `<br>` and `<nobr>`
 - `respond.printbr(args...)` - as above, but add `<br>` at the end
-- `respond.printrow(l,m,r)` - print as a single line, shortening `m` to fit into a single line
-- `respond.flush(str,...)` - print the head of the user's queue; the rest can be accessed with .more
+- `respond.printrow(l,m,r)` - add a single line to the queue, shortening `m` to fit into a single line
+- `respond.flush()` - show the head of the user's queue; the rest can be accessed with `.more`
 
 #### overload a command
 You can register the same command several times. In this case, the bot will try to match the provided arguments 

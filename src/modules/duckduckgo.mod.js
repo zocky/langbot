@@ -23,7 +23,11 @@ exports.setup = function(bot) {
       respond.printrow('',t,u);
       
       obj.RelatedTopics && obj.RelatedTopics.forEach(function(n) {
-        respond.printrow('', n.Text , n.FirstURL);
+        n.Topics 
+        ? n.Topics.forEach(function(m) {
+            respond.printrow(n.Name, m.Text , m.FirstURL);
+          }) 
+        : respond.printrow('', n.Text , n.FirstURL);
       })
       respond.flush();
     });

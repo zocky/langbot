@@ -58,10 +58,13 @@ exports.setup = function(bot) {
       if (error) return respond('error: '+ String(error));
       //try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
       if (!obj.query || !obj.query.pages) return respond('nothing found');
+      var ret = [];
       for (var id in obj.query.pages) {
         var p = obj.query.pages[id];
-        respond.printrow('',p.extract.htmlstrip(),p.fullurl);
+        if (p.title.toLowerCase() == text.toLowerCase()) ret.shift(['',p.extract.htmlstrip(),p.fullurl]);
+        ret.push(['',p.extract.htmlstrip(),p.fullurl]);
       };
+      for (var i in ret) respond.printrow(ret[i][0],ret[i][1],ret[i][2]);
       respond.flush();
     });
   };

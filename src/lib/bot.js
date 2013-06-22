@@ -229,7 +229,8 @@ module.exports = {
       out.push(pending.shift());
     }
     var text = out.join(' ');
-    while(pending[pending.length-1] == '<nobr>') pending.pop();
+    while (pending[0] == '<br>') pending.shift();
+    while(pending.length && pending[pending.length-1].match(/^<(no)?br>$/)) pending.pop();
     if (pending.length) {
       text+=' [...]';
       pending[0] = '[...] ' + pending[0];

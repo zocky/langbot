@@ -19,8 +19,8 @@
     "daemon": "1.1.0",
     "request": "x.x.x",
     "is-running": "x.x.x",
-    "html-entities": "x.x.x"
-    "irc": "x.x.x"
+    "html-entities": "x.x.x",
+    "irc": "x.x.x",
     "moment": "x.x.x"
   },
   "licenses": {

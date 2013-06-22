@@ -34,17 +34,13 @@ undeepen = function(from,to,path) {
   to = to || {};
   path = !path ? '' : path + '.';
   for (var i in from) {
-    if (typeof from[i] == 'object') {
+    if (from[i] && from[i].constructor == Object) {
       undeepen(from[i],to,path+i);
     } else {
       to[path+i] = from[i];
     }
   }
   return to;
-}
-
-String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
 }
 
 
@@ -189,6 +185,12 @@ Object.defineProperties(String, {
   }
 })
 Object.defineProperties(String.prototype, {
+  'capitalize': {
+    enumerable: false,
+    value: function() {
+      return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
+    }
+  },
   'camel': {
     enumerable: false,
     value: function() {
@@ -350,7 +352,7 @@ Object.defineProperty(Array.prototype,'unique', {
 });
 
 Object.defineProperty(Array,'make', {
-  enumerable: false,
+  enumerable: true,
   value :function(arr) {
     return Array.prototype.slice.call(arr,0);
   }

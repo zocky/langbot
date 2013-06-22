@@ -2,23 +2,25 @@
 
 An IRC bot in node.js
 
-## installation
+## getting started
 
     git clone https://github.com/zocky/langbot.git;
     cd langbot;
-    cp etc/default.config.json.example etc/default.config.json;
-    "${EDITOR:-vi}" etc/default.config.json;
+    cp etc/config.default.json etc/langbot.config.json;
+    "${EDITOR:-vi}" etc/langbot.config.json;
+
+To add more bots, add a config file for each bot at `./etc/[botname].config.json`.
 
 ## running your bots
 
-You control your bots with the `langbot` script. The first time you run it, it will install all the required npm packages, so it may take some time.
-The script knows the following commands:
+You control your bots with the `langbot` script. The first time you run it, it will install all the required 
+npm packages, so it may take some time. The script knows the following commands:
 
 ##### `./langbot status`
 Display the current status of your bots.
 
 ##### `./langbot start [botname]`
-Start a bot with config in ./var/[botname].config.json. All bots will be started by default.
+Start a bot with config at [./etc/[botname].config.json]. All bots will be started by default.
 
 ##### `./langbot stop [botname]`
 Stop a bot. All running bots will be stopped by default.
@@ -71,7 +73,7 @@ Other commands are provided by modules and include the following:
 
 Save your module in `./src/modules/[modname].mod.js.` 
 If your module has configuration options, add them to your bot's config file under `modules.[modname]`.
-Be sure to also add them to `./etc/default.config.json.example`.
+Be sure to also add them to `./etc/config.default.json`.
 
 All modules follow this pattern:
 

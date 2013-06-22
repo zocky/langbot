@@ -1,4 +1,20 @@
-exports.setup = function(bot) {
+exports.setup = function(bot,opt) {
+  var api_key = opt.api_key;
+  
+  if (bot.config.key_weather) {
+    if (!api_key) api_key = opt.api_key, console.log('.key_weather is deprecated. Move your weather underground API key to .modules.weather.apikey ASAP.');
+    else console.log('You have an old setting under .key_weather. You can delete it.');
+  }
+  
+  
+  if (!api_key) {
+    console.log(__filename,'- no api key provided under .modules.weather.apikey, module will not be loaded');
+    return;
+  }
+  if (!api_key.match(/^\w+$/)) {
+    console.log(__filename,'- bad api key provided .modules.weather.apikey, module will not be loaded');
+    return;
+  }
   bot.addCommand('weather', {
     usage: '.weather [search terms]',
     help: 'lookup weather underground',
@@ -24,8 +40,7 @@ exports.setup = function(bot) {
         if (!obj.geonames.length) return respond('nothing found');
         var n = obj.geonames[0];
         var loc = Number(n.lat).toFixed(5)+','+Number(n.lng).toFixed(5);
-
-        bot.wget('http://api.wunderground.com/api/'+bot.config.key_weather+'/geolookup/conditions/forecast/q/'+loc+'.json', function(error,response,body,url) {
+        bot.wget('http://api.wunderground.com/api/'+api_key+'/geolookup/conditions/forecast/q/'+loc+'.json', function(error,response,body,url) {
           if (error) return respond('error: '+ String(error));
           try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
 

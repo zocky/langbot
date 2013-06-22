@@ -6,6 +6,7 @@ var fs = require('fs');
 var util = require('util');
 var cp = require('child_process')
 require('./src/lib/utils.js')
+var prompt = require('./src/lib/prompt.js');
 
 /* INSTALL AND UPDATE */
 var packages = require('./package.json').dependencies;
@@ -203,6 +204,34 @@ install(function() {
     cb && cb();
   }
 
+  function config_list_default(cb) {
+    var dconfig = require('./etc/config.default.json');
+    var dsettings = undeepen(dconfig);
+    
+         
+    for (var i in dsettings) {
+      print(i); 
+      printat(40,dsettings[i]);
+      println();
+    }
+    
+    prompt.object(dconfig,cb)
+  }
+
+
+  function config_list(name,cb) {
+    var dconfig = require('./etc/config.default.json');
+    var dsettings = undeepen(dconfig);
+    
+    var config = require(bots[name].conffile);
+    var settings = undeepen(dconfig);
+    
+    for (var i in dsettings) {
+      console.log(i); 
+    }
+    cb && cb(name);
+  }
+
   var bots = {};
   ls('./etc/*.config.json')
   .forEach(function(n) {
@@ -236,6 +265,13 @@ install(function() {
   }
 
   switch (cmd) {
+  case 'set':
+    if (!arg1) {
+      config_list_default(arg1,exit);  
+      break;
+    }
+    config_list(arg1,exit);
+    break;
   case 'status':
     status(exit);
     break;

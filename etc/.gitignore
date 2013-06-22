@@ -1,1 +1,3 @@
-*.json
+*
+^*.example.json
+^README.txt

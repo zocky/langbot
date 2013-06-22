@@ -1,0 +1,12 @@
+{
+  "host": "irc.freenode.net",
+  "nick": null,
+  "pass": null,
+  "channel": null,
+  "master": null,
+  "modules": {
+    "weather": {
+      "api_key": null
+    }
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "host": "irc.freenode.net",
-  "nick": "botnick",
-  "pass": "pass",
-  "channel": "#channel",
-  "master": "yournick",
-  "key_weather": "your weather underground API key"
-}

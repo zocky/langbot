@@ -136,8 +136,8 @@ exports.setup = function(bot) {
           }
         }
 
-        var xsampa = out.join('');
-        respond.flush(ipa,xsampa,simple);
+        var sampa = out.join('');
+        respond.flush('ipa:',ipa,'sampa:',sampa,'approx',simple);
       });
     }
   })

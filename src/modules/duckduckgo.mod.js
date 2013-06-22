@@ -14,10 +14,14 @@ exports.setup = function(bot) {
       q:text,
     }, function(error,response,obj) {
       if (error) return respond('error: '+ String(error));
-      if (!obj.AbstractText) return respond('nothing found');
-        var at = obj.AbstractText;
-        var au = obj.AbstractURL;
-        respond.printrow('',at,au);
+      if (!obj.Type) return respond('nothing found');
+      var t = '';
+      var u = '';
+
+      if (obj.Type == 'D') { t = obj.Definition; u = obj.DefinitionURL; }
+      else { t = obj.AbstractText; u = obj.AbstractURL; }
+
+      respond.printrow('',t,u);
       respond.flush();
     });
   };

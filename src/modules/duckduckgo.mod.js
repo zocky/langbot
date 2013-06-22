@@ -18,10 +18,13 @@ exports.setup = function(bot) {
       var t = '';
       var u = '';
 
-      if (obj.Type == 'D') { t = obj.Definition; u = obj.DefinitionURL; }
-      else { t = obj.AbstractText; u = obj.AbstractURL; }
-
+      if (obj.Type == 'D') t = obj.Definition, u = obj.DefinitionURL; 
+      else t = obj.AbstractText, u = obj.AbstractURL;
       respond.printrow('',t,u);
+      
+      obj.RelatedTopics && obj.RelatedTopics.forEach(function(n) {
+        respond.printrow('', n.Result.htmlstrip() , n.FirstURL);
+      })
       respond.flush();
     });
   };

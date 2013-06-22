@@ -77,7 +77,6 @@ exports.setup = function(bot) {
           case 'j': add('y'); break;
           case 'ʍ': add('hw'); break;
 
-          case 'a': add('ae'); break;
           case 'ɑ': add('a'); break;
           case 'ʌ': add('a'); break;
           case 'æ': add('ae'); break;

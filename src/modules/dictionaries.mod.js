@@ -50,7 +50,7 @@ exports.setup = function(bot) {
 
         if (!ipa) return respond('not found');
         
-        ipa = ipa.replace(/a(?!ɪʊ)/g,'æ');
+        ipa = ipa.replace(/a(?![ɪʊ])/g,'æ');
         var chars = ipa.split("");
         var out = [];
         
@@ -137,7 +137,7 @@ exports.setup = function(bot) {
         }
 
         var sampa = out.join('');
-        respond.flush('ipa:',ipa,'sampa:',sampa,'approx',simple);
+        respond.flush('ipa:',ipa,'sampa:',sampa,'approx:',simple);
       });
     }
   })

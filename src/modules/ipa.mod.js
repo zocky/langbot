@@ -89,7 +89,11 @@ exports.setup = function(bot) {
         var ipa = x2ipa('oed',oed);
         var lcp = ipa2x('locaphone',ipa);
         var xsampa = ipa2x('xsampa',ipa);
-        respond.flush('ipa:'+ipa,' x-sampa:'+xsampa,'lcp:'+lcp);
+        var lcp2ipa = x2ipa('locaphone',lcp);
+        var extra = '';
+        if(lcp2ipa!=ipa) extra+= " WRONG: "+lcp2ipa;
+        var ret = ('IPA: '+ipa+'  |  X-SAMPA: '+xsampa+'  | LCP: '+lcp+extra).replace(/[/] [/]/g,', ');
+        respond.flush(ret);
       });
     }
   })

@@ -294,19 +294,8 @@ module.exports = {
   addCommand: function (name,opt) {
     this.commands[name] = [opt].concat(this.commands[name] || []);
   },
-  _wget: function(options,cb) {
-    var addParams = function(url,params) {
-      return url + (url.indexOf('?')>-1 ? '&' : '?') + qs.stringify(params);
-    }
-    if (options.params) {
-      options.url = addParams(options.url,options.params);
-    } 
-    var U = options.url;
-    return request(options,function(error,response,body) {
-      cb(error,response,body,U);
-    });
-  },
-  wget: function(url,params,cb) {
+  _wget: function(url,params,cb,extra) {
+
     if (typeof url == 'string' && typeof params == 'object') {
       var options = {
         url: url,
@@ -316,19 +305,26 @@ module.exports = {
       var options = url;
       cb = params;
     } else throw('bad params for wget');
-    this._wget(options,cb);
+  
+    for (var i in extra) options[i]=extra[i];
+  
+    if (options.params) {
+      var p = qs.stringify(params);
+      if (p) options.url += (options.url.indexOf('?')>-1 ? '&' : '?') + p;
+    } 
+    console.log(options);
+    var U = options.url;
+    return request(options,function(error,response,body) {
+      cb(error,response,body,U);
+    });
+  },
+  wpost: function(url,params,cb) {
+    this._wget(url,{},cb,{method:'POST',form:params});
+  },
+  wget: function(url,params,cb) {
+    this._wget(url,params,cb,{});
   },
   wgetjson: function(url,params,cb) {
-    if (typeof url == 'string' && typeof params == 'object') {
-      var options = {
-        url: url,
-        params: params,
-        json:true
-      }
-    } else if (typeof url == 'string') {
-      var options = url;
-      cb = params;
-    } else throw('bad params for wgetjson');
-    this._wget(options,cb);
+    this._wget(url,params,cb,{json:true});
   },
 }

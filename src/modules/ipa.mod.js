@@ -97,8 +97,6 @@ exports.setup = function(bot) {
       });
     }
   })
-
-
 }
 
 

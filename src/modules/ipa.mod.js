@@ -7,15 +7,16 @@ var data = require('./ipa.data.js');
     var ipa = Object.keys(t);
     ipa.sort(function(a,b){return b.length-a.length});
     _t.ipa2x_re = new RegExp('(' + ipa.filter(Boolean).map(RegExp.escape).join('|') + ')');
-    _t.ipa2x = {}; for(var i in t) _t.ipa2x[i] = t[i].split(/\|/)[0];
-    var x = []; for(var i in ipa) x=x.concat((t[ipa[i]]||'').split(/\|/));
+    _t.ipa2x = {}; for(var i in t) _t.ipa2x[i] = t[i].join ? t[i][0] : t[i];
+    var x = []; for(var i in ipa) x=x.concat(t[ipa[i]]);
     _t.x2ipa_re = new RegExp('(' + x.sort(function(a,b){return b.length-a.length}).map(RegExp.escape).join('|') + ')');
-    _t.x2ipa = {}; for(var i in t) t[i].split(/\|/).filter(Boolean).forEach(function(n){_t.x2ipa[n] = i});
+    _t.x2ipa = {}; for(var i in t) t[i].join ? t[i].filter(Boolean).forEach(function(n){_t.x2ipa[n] = i}) : _t.x2ipa[t[i]] = i;
  }
  
  console.log(_trans.locaphone);
  var ipa2x = function fn (name,str) {
     var t = _trans[name];
+    console.log(t.ipa2x_re);
     return ('/'+str+'/')
     .replace(/[/]+/g,'/')
     .split(t.ipa2x_re)
@@ -29,6 +30,7 @@ var data = require('./ipa.data.js');
     return ('/'+str+'/')
     .replace(/[/]+/g,'/')
     .split(t.x2ipa_re)
+    .log()
     .filter(Boolean)
     .map(function(n){return n in t.x2ipa ? t.x2ipa[n] : n})
     .join('');

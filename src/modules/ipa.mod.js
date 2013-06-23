@@ -97,7 +97,27 @@ exports.setup = function(bot) {
       });
     }
   })
+  
+  bot.addCommand('pronus', {
+    usage: '.pronus [word]',
+    help: 'display GA pronunciation of a word',
+    args: /^(.+)$/,
+    action: function(from,respond,text) {
+      bot.wget('http://oxforddictionaries.com/search/american_english/?direct=1&multi=1', {
+        q:text
+      }, function(error,response,body,url) {
+        if (error) return respond('error',String(error));
+        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation-us">\s*(\/.+?\/)\s*<\/a>/i,'$1');
+        if (!oed) return respond('nothing found');
+        var ipa = x2ipa('oed',oed);
+        var lcp = ipa2x('locaphone',ipa);
+        var xsampa = ipa2x('xsampa',ipa);
+        respond.flush('ipa:'+ipa,' x-sampa:'+xsampa,'lcp:'+lcp);
+      });
+    }
+  })
 }
+
 
 
   

@@ -15,7 +15,6 @@ var data = require('./ipa.data.js');
  
  var ipa2x = function fn (name,str) {
     var t = _trans[name];
-    console.log(t.ipa2x_re);
     return ('/'+str+'/')
     .replace(/[/]+/g,'/')
     .split(t.ipa2x_re)
@@ -26,10 +25,12 @@ var data = require('./ipa.data.js');
   
   var x2ipa = function fn (name,str) {
     var t = _trans[name];
+    console.log(t.x2ipa_re);
     return ('/'+str+'/')
     .replace(/[/]+/g,'/')
     .split(t.x2ipa_re)
     .filter(Boolean)
+    .log('x')
     .map(function(n){return n in t.x2ipa ? t.x2ipa[n] : n})
     .join('');
   }

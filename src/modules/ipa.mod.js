@@ -13,7 +13,6 @@ var data = require('./ipa.data.js');
     _t.x2ipa = {}; for(var i in t) t[i].join ? t[i].filter(Boolean).forEach(function(n){_t.x2ipa[n] = i}) : _t.x2ipa[t[i]] = i;
  }
  
- console.log(_trans.locaphone);
  var ipa2x = function fn (name,str) {
     var t = _trans[name];
     console.log(t.ipa2x_re);
@@ -25,12 +24,11 @@ var data = require('./ipa.data.js');
     .join('');
   }
   
-  var x2ipa = function fn (t,str) {
+  var x2ipa = function fn (name,str) {
     var t = _trans[name];
     return ('/'+str+'/')
     .replace(/[/]+/g,'/')
     .split(t.x2ipa_re)
-    .log()
     .filter(Boolean)
     .map(function(n){return n in t.x2ipa ? t.x2ipa[n] : n})
     .join('');

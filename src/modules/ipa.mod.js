@@ -50,6 +50,14 @@ exports.setup = function(bot) {
     help: 'Convert locaphone to IPA and X-SAMPA',
     args: /(.+)$/,
     action: function(from,respond,text) {
+    
+      text = text
+      .replace(/@r(?=[aeiou@])/g, 'ər')
+      .replace(/or(?=[aeiou@])/g, 'ɒr')
+      .replace(/ar/g, 'ɑr')
+      .replace(/@r/g, 'ɜr')
+      .replace(/or/g, 'ɔr');
+    
       var ipa = x2ipa('locaphone',text);
       var xsampa = ipa2x('xsampa',ipa);
       respond.flush('ipa:'+ipa,'x-sampa:'+xsampa);
@@ -76,8 +84,9 @@ exports.setup = function(bot) {
         q:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var ipa = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation">\s*(\/.+?\/)\s*<\/a>/i,'$1');
-        if (!ipa) return respond('nothing found');
+        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation">\s*(\/.+?\/)\s*<\/a>/i,'$1');
+        if (!oed) return respond('nothing found');
+        var ipa = x2ipa('oed',oed);
         var lcp = ipa2x('locaphone',ipa);
         var xsampa = ipa2x('xsampa',ipa);
         respond.flush('ipa:'+ipa,' x-sampa:'+xsampa,'lcp:'+lcp);

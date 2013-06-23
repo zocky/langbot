@@ -84,7 +84,7 @@ exports.setup = function(bot) {
         q:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation[^"]*">\s*(\/.+?\/)\s*<\/a>/i,'$1');
+        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation">\s*(\/.+?\/)\s*<\/a>/i,'$1');
         if (!oed) return respond('nothing found');
         var ipa = x2ipa('oed',oed);
         var lcp = ipa2x('locaphone',ipa);
@@ -109,7 +109,7 @@ exports.setup = function(bot) {
         if (error) return respond('error',String(error));
         var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation-us">\s*(\/.+?\/)\s*<\/a>/i,'$1');
         if (!oed) return respond('nothing found');
-        var ipa = x2ipa('oed',oed);
+        var ipa = x2ipa('respelling',oed);
         var lcp = ipa2x('locaphone',ipa);
         var xsampa = ipa2x('xsampa',ipa);
         respond.flush('ipa:'+ipa,' x-sampa:'+xsampa,'lcp:'+lcp);

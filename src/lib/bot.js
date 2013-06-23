@@ -39,7 +39,7 @@ module.exports = {
   loadedModules: {},
   loadModules: function() {
     var me = this;
-    fs.readdirSync('src/modules/').forEach(function(n){
+    fs.readdirSync('./src/modules/').forEach(function(n){
       var m = n.match(/^(\w+)\.mod\.js$/);
       if (!m) return;
       me.loadModule(m[1]);
@@ -312,7 +312,6 @@ module.exports = {
       var p = qs.stringify(params);
       if (p) options.url += (options.url.indexOf('?')>-1 ? '&' : '?') + p;
     } 
-    console.log(options);
     var U = options.url;
     return request(options,function(error,response,body) {
       cb(error,response,body,U);

@@ -84,7 +84,7 @@ exports.setup = function(bot) {
         q:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation">\s*(\/.+?\/)\s*<\/a>/i,'$1');
+        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation[^"]*">\s*(\/.+?\/)\s*<\/a>/i,'$1');
         if (!oed) return respond('nothing found');
         var ipa = x2ipa('oed',oed);
         var lcp = ipa2x('locaphone',ipa);
@@ -118,7 +118,3 @@ exports.setup = function(bot) {
   })
 }
 
-
-
-  
- 

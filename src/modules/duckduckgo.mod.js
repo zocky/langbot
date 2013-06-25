@@ -19,15 +19,15 @@ exports.setup = function(bot) {
       var u = '';
 
       if (obj.Type == 'D') t = obj.Definition, u = obj.DefinitionURL;
-      else t = obj.AbstractText, u = obj.AbstractURL;
+      else t = obj.AbstractText.htmlstrip(), u = obj.AbstractURL;
       respond.printrow('',t,u);
 
       obj.RelatedTopics && obj.RelatedTopics.forEach(function(n) {
         n.Topics
         ? n.Topics.forEach(function(m) {
-            respond.printrow(n.Name, m.Text , m.FirstURL);
+            respond.printrow(n.Name, m.Text.htmlstrip() , m.FirstURL);
           })
-        : respond.printrow('', n.Text , n.FirstURL);
+        : respond.printrow('', n.Text.htmlstrip() , n.FirstURL);
       })
       respond.flush();
     });

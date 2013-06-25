@@ -75,9 +75,9 @@ exports.setup = function(bot) {
     }
   })
 
-  bot.addCommand('pron', {
-    usage: '.pron [word]',
-    help: 'display pronunciation of a word',
+  bot.addCommand('rp', {
+    usage: '.rp [word]',
+    help: 'display RP pronunciation of a word',
     args: /^(.+)$/,
     action: function(from,respond,text) {
       bot.wget('http://oxforddictionaries.com/search/english/?direct=1&multi=1', {
@@ -98,8 +98,8 @@ exports.setup = function(bot) {
     }
   })
   
-  bot.addCommand('pronus', {
-    usage: '.pronus [word]',
+  bot.addCommand('ga', {
+    usage: '.ga [word]',
     help: 'display GA pronunciation of a word',
     args: /^(.+)$/,
     action: function(from,respond,text) {

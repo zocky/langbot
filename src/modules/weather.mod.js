@@ -1,5 +1,5 @@
 exports.setup = function(bot,opt) {
-  var api_key = opt.api_key;
+  var api_key = opt.apikey;
   
   if (bot.config.key_weather) {
     if (!api_key) api_key = opt.api_key, console.log('.key_weather is deprecated. Move your weather underground API key to .modules.weather.apikey ASAP.');

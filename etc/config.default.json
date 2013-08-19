@@ -2,6 +2,7 @@
   "host": "irc.freenode.net",
   "nick": null,
   "pass": null,
+  "identify_trigger": "You are now identified",
   "channel": null,
   "master": null,
   "modules": {

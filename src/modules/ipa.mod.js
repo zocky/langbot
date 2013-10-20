@@ -15,12 +15,15 @@ var data = require('./ipa.data.js');
  
  var ipa2x = function fn (name,str) {
     var t = _trans[name];
-    return ('/'+str+'/')
-    .replace(/[/]+/g,'/')
+    var str = ' '+str.clean().replace(/[/ ]+/g,'/').replace(/^[/ ]+|[/ ]+/g,'')+' ';
+    
+    var ret = str 
     .split(t.ipa2x_re)
     .filter(Boolean)
     .map(function(n){return n in t.ipa2x ? t.ipa2x[n] : n})
     .join('');
+    
+    return "/"+str+"/";
   }
   
   var x2ipa = function fn (name,str) {
@@ -50,15 +53,18 @@ exports.setup = function(bot) {
     help: 'Convert locaphone to IPA and X-SAMPA',
     args: /(.+)$/,
     action: function(from,respond,text) {
-    
-      text = text
-      .replace(/@r(?=[aeiou@])/g, 'ər')
-      .replace(/or(?=[aeiou@])/g, 'ɒr')
-      .replace(/ar/g, 'ɑr')
-      .replace(/@r/g, 'ɜr')
-      .replace(/or/g, 'ɔr');
-    
       var ipa = x2ipa('locaphone',text);
+      var xsampa = ipa2x('xsampa',ipa);
+      respond.flush('ipa:'+ipa,'x-sampa:'+xsampa);
+    }
+  })
+
+  bot.addCommand('la', {
+    usage: '.la [text]',
+    help: 'Convert locaphona to IPA and X-SAMPA',
+    args: /(.+)$/,
+    action: function(from,respond,text) {
+      var ipa = x2ipa('locaphona',text);
       var xsampa = ipa2x('xsampa',ipa);
       respond.flush('ipa:'+ipa,'x-sampa:'+xsampa);
     }

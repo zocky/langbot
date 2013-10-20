@@ -76,7 +76,7 @@ exports.setup = function(bot) {
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
         
-        var res = body.clean().split(/<td class='word'[^>]*>/)
+        var res = body.clean().split(/<div class='word'[^>]*>/)
         .extract(/^(.*?)<\/td>.*?<div class="definition">(.*?)<\/div>/i, '$1: $2')
         .filter(Boolean).map(function(n) {
           return String(n).htmlstrip();

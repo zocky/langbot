@@ -103,17 +103,17 @@ exports.setup = function(bot) {
       });
     }
   })
-  
+
   bot.addCommand('ga', {
     usage: '.ga [word]',
     help: 'display GA pronunciation of a word',
     args: /^(.+)$/,
     action: function(from,respond,text) {
-      bot.wget('http://oxforddictionaries.com/search/american_english/?direct=1&multi=1', {
+      bot.wget('http://dictionary.cambridge.org/us/dictionary/american-english/' + text, {
         q:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var oed = body.extract(/<a href="http:..oxforddictionaries.com.words.key-to-pronunciation-us">\s*(\/.+?\/)\s*<\/a>/i,'$1');
+        var oed = body.extract(/<span title="Written pronunciation" class="pron">\/<span class="ipa">(.*?)<\/span>\/<\/span>/i,'$1');
         if (!oed) return respond('nothing found');
         var ipa = x2ipa('respelling',oed);
         var lcp = ipa2x('locaphone',ipa);

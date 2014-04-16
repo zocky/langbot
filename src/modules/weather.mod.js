@@ -37,7 +37,7 @@ exports.setup = function(bot,opt) {
 
       bot.wget('http://ws.geonames.org/searchJSON', {
         q:text,
-        username: 'zocky',
+        username: bot.config.modules.where.username,
         maxRows:1,
       }, function(error,response,body,url) {
 

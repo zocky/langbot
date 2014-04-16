@@ -259,7 +259,7 @@ module.exports = {
         break;
       }
     }
-    if (!command) return respond ('bad args, usage: '+bot.usage(cmd));
+    if (!command) return respond ('bad args, usage: '+this.usage(cmd));
     
     var me = this;
     var pending = me.pending[from];

@@ -6,15 +6,20 @@ exports.setup = function(bot,opt) {
     else console.log('You have an old setting under .key_weather. You can delete it.');
   }
   
-  
   if (!api_key) {
-    console.log(__filename,'- no api key provided under .modules.weather.apikey, module will not be loaded');
+    console.log(bot.nick, __filename,'- no api key provided under .modules.weather.apikey, module will not be loaded');
     return;
   }
+  
   if (!api_key.match(/^\w+$/)) {
-    console.log(__filename,'- bad api key provided .modules.weather.apikey, module will not be loaded');
+    console.log(bot.nick, __filename,'- bad api key provided .modules.weather.apikey, module will not be loaded');
     return;
   }
+  
+  if (!bot.config || !bot.config.modules.where || !bot.config.modules.where.username) 
+    return console.log(bot.nick, __filename,'- no geonames username provided in .modules.where.username, module will not be loaded');
+
+  
   bot.addCommand('weather', {
     usage: '.weather [search terms]',
     help: 'lookup weather underground',
@@ -32,11 +37,13 @@ exports.setup = function(bot,opt) {
 
       bot.wget('http://ws.geonames.org/searchJSON', {
         q:text,
+        username: 'zocky',
         maxRows:1,
       }, function(error,response,body,url) {
 
         if (error) return respond('error: '+ String(error));
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
+        if (obj.status) return respond('error: '+String(obj.status.message));
         if (!obj.geonames.length) return respond('nothing found');
         var n = obj.geonames[0];
         var loc = Number(n.lat).toFixed(5)+','+Number(n.lng).toFixed(5);

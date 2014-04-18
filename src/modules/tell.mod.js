@@ -8,7 +8,7 @@ exports.setup = function(bot) {
     if (bot.state.tell[n] && bot.state.tell[n].length) {
       bot.state.tell[n].forEach(function(n) {
         if (typeof n == 'object') {
-          bot.say('<'+n.from+'> tell '+from+' '+n.msg + ' ('+moment(n.ts).fromNow() + ')');
+          bot.say('<'+n.from+'> tell '+from+' '+n.msg + ' ['+moment(n.ts).fromNow() + ']');
         } else {
           bot.say(n);
         }

@@ -1,3 +1,4 @@
+var moment = require('moment');
 
 exports.setup = function(bot) {
   bot.state.tell =  bot.state.tell || {};
@@ -6,7 +7,11 @@ exports.setup = function(bot) {
     var n = from.toLowerCase();
     if (bot.state.tell[n] && bot.state.tell[n].length) {
       bot.state.tell[n].forEach(function(n) {
-        bot.say(n);
+        if (typeof n == 'object') {
+          bot.say('<'+n.from+'> tell '+from+' '+n.msg + ' ('+moment(n.ts).fromNow() + ')');
+        } else {
+          bot.say(n);
+        }
       })
       bot.state.tell[n]=[];
       bot.save();
@@ -25,7 +30,11 @@ exports.setup = function(bot) {
       if (bot.state.seen && !bot.state.seen[n]) return respond ("I don't know " +nick + '.');
       
       bot.state.tell[n] = bot.state.tell[n] || [];
-      bot.state.tell[n].push('<'+from+'> tell ' + nick + ' ' + msg.clean());
+      bot.state.tell[n].push({
+        from: from,
+        msg: msg.clean(),
+        ts: Date.now()
+      });
       bot.save();
       return respond('I will pass that on when '+nick+' is around.');
     }

@@ -41,16 +41,18 @@ exports.setup = function(bot) {
       if (text=='?') return respond(googleLangs);
       sl = sl || 'auto';
       tl = tl || 'en';
-      bot.wget('http://translate.google.com/translate_a/t?client=t&hl=en&otf=1&ssel=0&tsel=0&uptl=en&sc=1&oe=utf-8&ie=utf-8', {
+      bot.wget('http://translate.google.com/translate_a/t?client=p&hl=en&otf=1&ssel=0&tsel=0&uptl=en&sc=1&oe=utf-8&ie=utf-8', {
         text:text,
         sl:sl,
         tl:tl,
       }, function(error,response,body,url) {
         if (error) return respond('error: '+ String(error));
-        try { var obj = JSON.parse(body.replace(/,(?=,)/g,',null')); } catch (e) {return respond('error: ' + String(e)); }
-        if (!obj[0] || !obj[0][0] || !obj[0][0][0]) respond('nothing found');
+        //body = body.replace(/,(?=,)/g,',null')
+        try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
+        var trans = obj.sentences && obj.sentences[0] && obj.sentences[0].trans;
+        if (!trans) respond('nothing found');
 //        if (sl=='auto') sl = body.clean().extract(/"([^"]*)"/g,'$1').pop();
-        return respond('['+sl +':'+tl+ '] ' + obj[0][0][0]) + ' | ' +url;
+        return respond('['+sl +':'+tl+ '] ' + trans) + ' | ' +url;
       });
     }
   })

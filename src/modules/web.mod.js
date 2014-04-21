@@ -86,61 +86,59 @@ exports.setup = function(bot) {
     }
   })
 
-  var imdb = function(from,respond,text,cb) {
-    text = text.trim();
-    var m = text.match(/^(.*)\s+(\d\d\d\d)/);
-    if (m) {
-      var args = {
-        s:m[1],
-        y:m[2],
-        limit:10
-      }
-    } else {
-      var args = {
-        s:text,
-        limit:10
-      }
-    }
-    bot.wgetjson('http://www.omdbapi.com/', args, function (error, response, obj, url) {
-      if (error) return respond('error: '+String(error));
-      //if (!obj.length) return respond('nothing found '+url);
-      var res = obj.Search;
-      if (!res || !res.length) return respond('nothing found '+url);
-      var hits = cb ? cb(res) : res;
-      for (var i in hits) {
-        var o = hits[i];
-        var info = [];
-        if (o.language) info.push(o.language.join(', '));
-        if (o.runtime)  info.push(o.runtime[0]);
-        info = info.join(', ');
-        respond.print( (o.Extra||'') + o.Title + ' (' + o.Year + ' ' + o.Type +') ' + 'www.imdb.com/title/'+o.imdbID + ' | ');
-      }
-      respond.flush();
-    })
-  }
-
   bot.addCommand('imdb', {
-    usage: '.imdb [movie]',
+    usage: '.imdb [movie], .imdb [year]',
     args: /^(.+)$/,
     help: 'Find a movie on imdb.com ...',
     action: function(from,respond,text) {
-      imdb(from,respond,text);
-    }
-  });
-/*  bot.addCommand('imdb', {
-    usage: '.imdb [movie] [year]',
-    help: '... from a particular year',
-    args: /^(.*)(?!$) (\d\d\d\d)$/,
-    action: function(from,respond,text,year) {
-      imdb(from,respond,text, function(obj) {
-        var hits = obj.filter(function(n) {return n.year == year});
-        if (hits.length) return hits;
-        obj[0].extra = '[nothing found in year '+year + '] ';
-        return obj;
+      
+      text = text.trim();
+      var m = text.match(/^(.*)\s+(\d\d\d\d)/);
+      if (m) {
+        var args = {
+          s:m[1],
+          y:m[2],
+          limit:10
+        }
+      } else {
+        var args = {
+          s:text,
+          limit:10
+        }
+      }
+      bot.wgetjson('http://www.omdbapi.com/', args, function (error, response, obj, url) {
+        if (error) return respond('error: '+String(error));
+        //if (!obj.length) return respond('nothing found '+url);
+        var hits = obj.Search;
+        if (!hits || !hits.length) return respond('nothing found '+url);
+        if (hits.length > 1) {
+          for (var i in hits) {
+            var o = hits[i];
+            respond.print( o.Title + ' (' + o.Year + ' ' + o.Type +') ' + 'www.imdb.com/title/'+o.imdbID + ' | ');
+          }
+          respond.flush();
+        } else {
+          o = hits[0];
+          bot.wgetjson('http://www.omdbapi.com/', {
+            t: o.Title,
+            y: o.Year
+          }, function (error, response, o, url) {
+            if (!o) return respond('nothing found '+url);
+            var info = [
+              o.Year,
+              o.Type,
+              o.Country,
+              o.Runtime  
+            ].filter(Boolean)
+            .join(' ');
+            
+            respond.printrow(o.Title + ' (' + info +') ', o.Plot || '' , 'www.imdb.com/title/'+o.imdbID);
+            respond.flush();
+          });
+        }
       })
     }
   });
-*/
   bot.addCommand('re', {
     usage: '.re /[regexp]/[opt] [string]',
     help: 'regexp match',

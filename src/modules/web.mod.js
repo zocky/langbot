@@ -87,22 +87,33 @@ exports.setup = function(bot) {
   })
 
   var imdb = function(from,respond,text,cb) {
-    bot.wgetjson('http://www.imdbapi.org/', {
-      q:text,
-      limit:10
-    }, function (error, response, obj,url) {
+    text = text.trim();
+    var m = text.match(/^(.*)\s+(\d\d\d\d)/);
+    if (m) {
+      var args = {
+        s:m[1],
+        y:m[2],
+        limit:10
+      }
+    } else {
+      var args = {
+        s:text,
+        limit:10
+      }
+    }
+    bot.wgetjson('http://www.omdbapi.com/', args, function (error, response, obj, url) {
       if (error) return respond('error: '+String(error));
-      if (!obj.length) return respond('nothing found '+url);
-      var obj = obj.filter(Boolean);
-      if (!obj.length) return respond('nothing found '+url);
-      var hits = cb ? cb(obj) : obj;
+      //if (!obj.length) return respond('nothing found '+url);
+      var res = obj.Search;
+      if (!res || !res.length) return respond('nothing found '+url);
+      var hits = cb ? cb(res) : res;
       for (var i in hits) {
         var o = hits[i];
         var info = [];
         if (o.language) info.push(o.language.join(', '));
         if (o.runtime)  info.push(o.runtime[0]);
         info = info.join(', ');
-        respond.printrow( (o.extra||'') + o.title + ' (' + o.year + ')' + ' | ' + info + ' | ' +o.rating, o.plot_simple || o.plot, o.imdb_url);
+        respond.print( (o.Extra||'') + o.Title + ' (' + o.Year + ' ' + o.Type +') ' + 'www.imdb.com/title/'+o.imdbID + ' | ');
       }
       respond.flush();
     })
@@ -116,7 +127,7 @@ exports.setup = function(bot) {
       imdb(from,respond,text);
     }
   });
-  bot.addCommand('imdb', {
+/*  bot.addCommand('imdb', {
     usage: '.imdb [movie] [year]',
     help: '... from a particular year',
     args: /^(.*)(?!$) (\d\d\d\d)$/,
@@ -129,7 +140,7 @@ exports.setup = function(bot) {
       })
     }
   });
-
+*/
   bot.addCommand('re', {
     usage: '.re /[regexp]/[opt] [string]',
     help: 'regexp match',

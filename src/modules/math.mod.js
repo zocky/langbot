@@ -8,7 +8,7 @@ exports.setup = function(bot) {
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
       try {
-        respond (math.eval(text));
+        respond (math.format(math.eval(text), {precision: 14}));
       } catch (e) {
         respond (String(e));
       }

@@ -1,24 +1,7 @@
 var lastUrl = [];
 
 exports.setup = function(bot) {
-  bot.addCommand('c', {
-    usage: '.c [expression]',
-    help: 'google calculator',
-    args: /^(.+)$/,
-    action: function(from,respond,text) {
-      if (!text) return respond ('You gave me zero length input.');
-      bot.wget('http://www.google.com/ig/calculator?ie=utf-8&oe-utf-8', {
-        q:text
-      }, function(error,response,body,url) {
-        if (error) return respond('error: ' +String(error));
-        var m = body.match(/".*?"/g);
-        if (!m) return respond("error");
-        m = m.map(function(n) { return JSON.parse(n); });
-        if (m[2]) return respond('error: ' + m[2] + ' -- ' +url);
-        return respond(m[1].replace(/<sup>/g,'^(').replace(/<\/sup>/g,')'));
-      });
-    }
-  })
+
 
   var googleLangs = 
     '(af|ar|az|be|bg|bn|bs|ca|ceb|cs|cy|da|de|el|en|eo|es|et|eu|fa|fi|fil|fr|ga|gl|guj|he|hi|hmn|hr|ht|hu|hy|id|is|it|ja|'

@@ -21,7 +21,8 @@
     "is-running": "x.x.x",
     "html-entities": "x.x.x",
     "irc": "x.x.x",
-    "moment": "x.x.x"
+    "moment": "x.x.x",
+    "mathjs": "x.x.x"
   },
   "licenses": {
     "type": "GPL3",

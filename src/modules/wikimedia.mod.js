@@ -82,7 +82,7 @@ exports.setup = function(bot) {
         'preposition' : 'prep.','conjunction' : 'conj.','particle':'part.','interjection':'intj.',
         'proper noun': 'prop. n.','article':'art.','prefix':'pref.','suffix':'suf.','idiom':'idiom',
         'acronym':'acr.','abbreviation':'abbr.','initialism':'init.','symbol':'symbol','letter':'letter',
-        'romanization':'rom.','proverb':'proverb','numeral':'num.'
+        'romanization':'rom.','proverb':'proverb','numeral':'num.', 'contraction': 'contr.'
       };
       var found = false;
       var curlang = false;

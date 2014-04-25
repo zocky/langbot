@@ -171,4 +171,20 @@ exports.setup = function(bot) {
       });
     }
   });
+  
+  bot.addCommand('q', {
+    usage: '.q',
+    help: 'show random quote',
+    action: function(from,respond,text) {
+      bot.wgetjson('http://www.iheartquotes.com/api/v1/random', {
+        format: 'json',
+        max_characters: 320,
+      }, function (error, response, o, url) {
+        console.log(o);
+        if (error) return respond('error: '+error);
+        if (!o || !o.quote) return respond('nothing found '+url);
+        respond(String(o.quote).clean());
+      })
+    }
+  });
 };

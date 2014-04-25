@@ -34,8 +34,7 @@ exports.setup = function(bot) {
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
         var trans = obj.sentences && obj.sentences[0] && obj.sentences[0].trans;
         if (!trans) respond('nothing found');
-//        if (sl=='auto') sl = body.clean().extract(/"([^"]*)"/g,'$1').pop();
-        return respond('['+sl +':'+tl+ '] ' + trans) + ' | ' +url;
+        return respond('['+obj.src +':'+tl+ '] ' + trans) + ' | ' +url;
       });
     }
   })

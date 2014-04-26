@@ -13,7 +13,8 @@ module.exports = {
     nick: 'langbot',
     channel: 'langbot',
     master: undefined,
-    pass: undefined
+    pass: undefined,
+    identify_trigger: "You are now identified",
   },
   report: function(a1,a2) {
     //console.error(this.config.master,a1+':',a2);

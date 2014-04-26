@@ -65,7 +65,7 @@ module.exports = {
       fs.unlinkSync(pidfile)
     })    
     var client = me.client = new irc.Client(me.config.host, me.config.nick, {
-        channels: [me.config.channel],
+        channels: [],
         autoRejoin: false,
         userName: 'langbot',
         autoConnect: true,
@@ -74,13 +74,17 @@ module.exports = {
     });
 
     client.addListener('registered' , function (ch,names) {
-      if (me.config.pass) me.client.say('NickServ','IDENTIFY '+me.config.pass);
+      if (me.config.pass)
+        me.client.say('NickServ','IDENTIFY '+me.config.pass);
+      else
+        me.client.join(me.config.channel);
     });
     
     client.addListener('error', me.report.bind(this,'error'));
-//    client.addListener('registered', me.report.bind(this,'registered'));
-    client.addListener('notice', function(from, to, text,message) {
+    client.addListener('notice', function(from, to, text, message) {
       me.report('notice','<'+(from||me.config.host)+'> '+text);
+      if(me.config.pass && from == 'NickServ' && text.indexOf(me.config.identify_trigger) >= 0)
+          me.client.join(me.config.channel);
     });
 
     client.addListener('invite', function (ch) {

@@ -32,9 +32,9 @@ exports.setup = function(bot) {
         if (error) return respond('error: '+ String(error));
         //body = body.replace(/,(?=,)/g,',null')
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
-        var trans = obj.sentences && obj.sentences[0] && obj.sentences[0].trans;
-        if (!trans) respond('nothing found');
-        return respond('['+obj.src +':'+tl+ '] ' + trans) + ' | ' +url;
+        if (!obj.sentences) respond('nothing found');
+        var trans = obj.sentences.map(function(n) { return n.trans; }).join(' ');
+        return respond('['+obj.src +':'+tl+ '] ' + trans);
       });
     }
   })

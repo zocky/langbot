@@ -7,6 +7,9 @@
   "modules": {
     "weather": {
       "api_key": null
+    },
+    "where": {
+      "username": null
     }
   }
 }

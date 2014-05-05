@@ -104,14 +104,14 @@ module.exports = {
         } else {
           me.doMessage(from,m[2].trim(),function(reply) {
             me.say(from+': '+reply);
-          });
+          }) || me.emit('talk',from,m[2].trim());
         }
       } else {
         me.emit('say',from,message);
       }
     });
     me.client.addListener('pm', function (from, message) {
-      if (!me.present(from)) return me.say(from,"Join "+bot.config.channel+" and then we'll talk.");
+      if (!me.present(from)) return me.say(from,"Join "+me.config.channel+" and then we'll talk.");
       me.doMessage(from,message,function(reply) {
         me.say(from,reply);
       });
@@ -146,6 +146,7 @@ module.exports = {
   },
   listeners: {
     say: [],
+    talk: [],
     action: [],
     command: [],
     all: [],
@@ -245,11 +246,11 @@ module.exports = {
   doMessage: function(from,msg,respond) {
     msg = msg.clean();
     var m = msg.match(/^(\w+)(.*)$/);
-    if (!m) return;
+    if (!m) return false;
     var cmd = m[1];
     var text = m[2].clean();
     var commands = this.commands[cmd];
-    if (!commands) return;
+    if (!commands) return false;
     for (var i in commands) {
       var c = commands[i];
       if (c.args instanceof RegExp) {
@@ -264,7 +265,10 @@ module.exports = {
         break;
       }
     }
-    if (!command) return respond ('bad args, usage: '+this.usage(cmd));
+    if (!command) {
+      respond ('bad args, usage: '+this.usage(cmd));
+      return true;
+    }
     
     var me = this;
     var pending = me.pending[from];
@@ -281,6 +285,7 @@ module.exports = {
     me._pending[from] = (me.pending[from]||[]).concat();
     me.pending[from] = [];
     command.action.apply(this,args);
+    return true;
   },
   usage:function(cmd) {
     var command = this.commands[cmd];

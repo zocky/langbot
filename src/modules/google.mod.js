@@ -33,7 +33,7 @@ exports.setup = function(bot) {
         //body = body.replace(/,(?=,)/g,',null')
         try { var obj = JSON.parse(body); } catch (e) {return respond('error: ' + String(e)); }
         if (!obj.sentences) respond('nothing found');
-        var trans = obj.sentences.map(function(n) { return n.trans; }).join(' ');
+        var trans = obj.sentences.map(function(n) { return String(n.trans||'').trim(); }).join(' ');
         return respond('['+obj.src +':'+tl+ '] ' + trans);
       });
     }

@@ -48,24 +48,25 @@ exports.setup = function(bot) {
   });
 
   function wikipedia(from,respond,lang,text) {
-    if (!data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
-  
-    bot.wgetjson('http://'+lang+'.wikipedia.org/w/api.php?action=query&generator=search&prop=extracts|info&inprop=url&exchars=500&format=json', {
-      exlimit: 'max',
-      exintro: '1',
-      gsrsearch:text,
-    }, function(error,response,obj) {
-      if (error) return respond('error: '+ String(error));
-      //try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
-      if (!obj.query || !obj.query.pages) return respond('nothing found');
-      var ret = [];
-      for (var id in obj.query.pages) {
-        var p = obj.query.pages[id];
-        if (p.title.toLowerCase() == text.toLowerCase()) ret.shift(['',p.extract.htmlstrip(),p.fullurl]);
-        ret.push(['',p.extract.htmlstrip(),p.fullurl]);
-      };
-      for (var i in ret) respond.printrow(ret[i][0],ret[i][1],ret[i][2]);
-      respond.flush();
+    if (!data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');  
+    bot.wgetjson('https://'+lang+'.wikipedia.org/w/api.php?action=query&list=search&format=json', {
+      srsearch:text,
+    }, function(error,response,body) {
+      if (error) return respond('error: '+ String(error));       
+      try { var title = body.query.search[0].title; } catch(e) { return respond('no results') }        
+      bot.wgetjson('https://'+lang+'.wikipedia.org/w/api.php?action=query&exchars=300&prop=info|extracts&inprop=url&format=json', {
+          exlimit: 'max',
+          exintro: '1',
+          titles: title,          
+      }, function(error, response, obj) {      
+        //try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
+        if (!obj.query || !obj.query.pages) return respond('nothing found');        
+        for (id in obj.query.pages) {
+          var p = obj.query.pages[id];
+          respond.printrow(p.title, p.extract.htmlstrip(), p.fullurl);
+        }        
+        respond.flush();
+      });
     });
   };
   

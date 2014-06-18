@@ -1,0 +1,165 @@
+{
+	"data":
+	[
+		{
+			"id": 1,
+			"label": "1A",
+			"team_id": 0
+		},
+		{
+			"id": 2,
+			"label": "1B",
+			"team_id": 0
+		},
+		{
+			"id": 3,
+			"label": "1C",
+			"team_id": 0
+		},
+		{
+			"id": 4,
+			"label": "1D",
+			"team_id": 0
+		},
+		{
+			"id": 5,
+			"label": "1E",
+			"team_id": 0
+		},
+		{
+			"id": 6,
+			"label": "1F",
+			"team_id": 0
+		},
+		{
+			"id": 7,
+			"label": "1G",
+			"team_id": 0
+		},
+		{
+			"id": 8,
+			"label": "1H",
+			"team_id": 0
+		},
+		{
+			"id": 9,
+			"label": "2A",
+			"team_id": 0
+		},
+		{
+			"id": 10,
+			"label": "2B",
+			"team_id": 0
+		},
+		{
+			"id": 11,
+			"label": "2C",
+			"team_id": 0
+		},
+		{
+			"id": 12,
+			"label": "2D",
+			"team_id": 0
+		},
+		{
+			"id": 13,
+			"label": "2E",
+			"team_id": 0
+		},
+		{
+			"id": 14,
+			"label": "2F",
+			"team_id": 0
+		},
+		{
+			"id": 15,
+			"label": "2G",
+			"team_id": 0
+		},
+		{
+			"id": 16,
+			"label": "2H",
+			"team_id": 0
+		},
+		{
+			"id": 17,
+			"label": "W49",
+			"team_id": 0
+		},
+		{
+			"id": 18,
+			"label": "W50",
+			"team_id": 0
+		},
+		{
+			"id": 19,
+			"label": "W51",
+			"team_id": 0
+		},
+		{
+			"id": 20,
+			"label": "W52",
+			"team_id": 0
+		},
+		{
+			"id": 21,
+			"label": "W53",
+			"team_id": 0
+		},
+		{
+			"id": 22,
+			"label": "W54",
+			"team_id": 0
+		},
+		{
+			"id": 23,
+			"label": "W55",
+			"team_id": 0
+		},
+		{
+			"id": 24,
+			"label": "W56",
+			"team_id": 0
+		},
+		{
+			"id": 25,
+			"label": "W57",
+			"team_id": 0
+		},
+		{
+			"id": 26,
+			"label": "W58",
+			"team_id": 0
+		},
+		{
+			"id": 27,
+			"label": "W59",
+			"team_id": 0
+		},
+		{
+			"id": 28,
+			"label": "W60",
+			"team_id": 0
+		},
+		{
+			"id": 29,
+			"label": "L61",
+			"team_id": 0
+		},
+		{
+			"id": 30,
+			"label": "L62",
+			"team_id": 0
+		},
+		{
+			"id": 31,
+			"label": "W61",
+			"team_id": 0
+		},
+		{
+			"id": 32,
+			"label": "W62",
+			"team_id": 0
+		}
+	]
+}

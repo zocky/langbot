@@ -10,8 +10,8 @@ module.exports = {
   client: null,
   config: {
     host: 'irc.freenode.net',
-    nick: 'langbot',
-    channel: 'langbot',
+    nick: 'wcbot',
+    channel: 'wcbot',
     master: undefined,
     pass: undefined,
     identify_trigger: "You are now identified",
@@ -92,7 +92,7 @@ module.exports = {
       if (ch == me.config.channel) client.join(me.config.channel);
     });
 
-    me.client.addListener('message'+me.config.channel,function (from, message) {
+    me.client.addListener('message'+me.config.channel,function (from, message, raw) {
       if (from == me.client.nick) return;
       var re = new RegExp('^('+ me.client.nick + '[,:>]\s*|[.])(.*)$','i');
       var m = message.match(re);
@@ -100,21 +100,22 @@ module.exports = {
         if(m[1] == '.') {
           me.doMessage(from,m[2].trim(),function(reply) {
             me.say(reply);
-          });
+          },raw);
         } else {
           me.doMessage(from,m[2].trim(),function(reply) {
             me.say(from+': '+reply);
-          }) || me.emit('talk',from,m[2].trim());
+          },raw) || me.emit('talk',from,m[2].trim());
         }
       } else {
         me.emit('say',from,message);
       }
     });
-    me.client.addListener('pm', function (from, message) {
+    me.client.addListener('pm', function (from, message,raw) {
       if (!me.present(from)) return me.say(from,"Join "+me.config.channel+" and then we'll talk.");
+      if(message[0]=='.') message=message.substr(1);
       me.doMessage(from,message,function(reply) {
         me.say(from,reply);
-      });
+      },raw);
     });
 
     me.loadModules();
@@ -243,7 +244,7 @@ module.exports = {
     }
     respond(text);    
   },
-  doMessage: function(from,msg,respond) {
+  doMessage: function(from,msg,respond,raw) {
     msg = msg.clean();
     var m = msg.match(/^(\w+)(.*)$/);
     if (!m) return false;

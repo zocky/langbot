@@ -241,7 +241,7 @@ install(function() {
     if (pid && !running(pid)) unlink(pidfile), pid = null;
     var b = bots[name] = {
       conf: './etc/'+name+'.config.json',
-      state: './var/'+name+'.config.json',
+      state: './var/'+name+'.state.json',
       pidfile: pidfile,
       pid: pid
     }

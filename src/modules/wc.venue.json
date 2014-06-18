@@ -1,0 +1,77 @@
+{
+	"data":
+	[
+		{
+			"id": 1,
+			"name": "Estadio Mineirao",
+			"city": "Belo Horizonte",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 2,
+			"name": "Estadio Nacional",
+			"city": "Brasilia",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 3,
+			"name": "Arena Pantanal",
+			"city": "Cuiabá",
+			"tz_offset": "-0400"
+		},
+		{
+			"id": 4,
+			"name": "Arena da Baixada",
+			"city": "Curitiba",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 5,
+			"name": "Estadio Castelao",
+			"city": "Fortaleza",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 6,
+			"name": "Arena Amazonia",
+			"city": "Manaus",
+			"tz_offset": "-0400"
+		},
+		{
+			"id": 7,
+			"name": "Estadio das Dunas",
+			"city": "Natal",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 8,
+			"name": "Estadio Beira-Rio",
+			"city": "Porto Alegre",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 9,
+			"name": "Arena Pernambuco",
+			"city": "Recife",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 10,
+			"name": "Estadio do Maracana",
+			"city": "Rio De Janeiro",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 11,
+			"name": "Arena Fonte Nova",
+			"city": "Salvador",
+			"tz_offset": "-0300"
+		},
+		{
+			"id": 12,
+			"name": "Arena de Sao Paulo",
+			"city": "Sao Paulo",
+			"tz_offset": "-0300"
+		}
+	]
+}

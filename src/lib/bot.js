@@ -6,6 +6,11 @@ var request = require('request');
 var qs = require('querystring');
 var util = require('util');
 
+
+function sizeof(s) {
+  return encodeURI(s).split(/%..|./).length - 1;
+}
+
 module.exports = {
   client: null,
   config: {
@@ -33,6 +38,8 @@ module.exports = {
     try {
       var str = fs.readFileSync('./etc/'+this.confname+'.config.json');
       var cfg = JSON.parse(str);
+      if (typeof cfg.enabled_modules=='string') cfg.enabled_modules = cfg.enabled_modules.trim().split(/\s+/);
+      if (typeof cfg.disabled_modules=='string') cfg.disabled_modules = cfg.disabled_modules.trim().split(/\s+/);
       for (var i in cfg) this.config[i] = cfg[i];
     } catch(e) {
     }
@@ -48,11 +55,12 @@ module.exports = {
   },
   loadModule: function(name) {
 //    console.log('Loading module',name+'.');
+    if (this.config.enabled_modules && this.config.enabled_modules.indexOf(name)<0) return;
+    if (this.config.disabled_modules && this.config.disabled_modules.indexOf(name)>1) return;
     var opt = this.config.modules && this.config.modules[name] || {};
-    if (!opt.disabled) {
-      require('../modules/'+name+'.mod.js').setup(this,opt);
-      this.loadedModules[name] = true;
-    }
+    if (opt.disabled) return;
+    require('../modules/'+name+'.mod.js').setup(this,opt);
+    this.loadedModules[name] = true;
   },
   init: function(confname) {
     this.confname = confname || 'default';
@@ -134,6 +142,22 @@ module.exports = {
       console.log(err.stack);
       me.report('exception',err);
     });
+    
+    me.client.on('notice',function(nick,to,text) {
+      if (nick != 'NickServ') return;
+      var m = text.match(/^(\S+) -> (\S+) ACC (\d)/);
+      if (!m) return;
+      var nick = m[1], account = m[2] == '*' ? null : m[2];
+      if (timeouts[nick]) {
+        clearTimeout(timeouts[nick]);
+        delete timeouts[nick];
+      }
+      if (pending_cloaks[nick]) cloaks[pending_cloaks[nick]] = account;
+      if (!accs[nick]) return;
+      accs[nick](account);
+      delete accs[nick];
+    })
+    
   
     return me;
 
@@ -212,6 +236,10 @@ module.exports = {
     })
     this._flush(nick,respond);
   },
+  flushAll: function(nick,respond) {
+    var pending = this.pending[nick];
+    while(pending && pending.length) this._flush(nick,respond);
+  },
   flushbr: function(nick, respond) {
     var me = this;
     var args = Array.make(arguments).slice(2).flatten().filter(Boolean).forEach(function(n) {
@@ -232,7 +260,7 @@ module.exports = {
         pending.shift();
         break;
       }
-      if (out.join(' ').length + pending[0].length + 1 > 430) break;
+      if (sizeof(out.join(' ') + pending[0]) + 1 > 400) break;
       out.push(pending.shift());
     }
     var text = out.join(' ');
@@ -270,6 +298,12 @@ module.exports = {
       respond ('bad args, usage: '+this.usage(cmd));
       return true;
     }
+
+    if (command.msgonly && raw.args[0]!=this.client.nick) {
+      respond ('Only available through /msg');
+      return true;
+    }
+    
     
     var me = this;
     var pending = me.pending[from];
@@ -277,22 +311,43 @@ module.exports = {
     respond.flush = me.flush.bind(me,from,respond);
     respond.printbr = me.printbr.bind(me,from);
     respond.flushbr = me.flushbr.bind(me,from,respond);
+    respond.flushAll = me.flushAll.bind(me,from,respond);
     respond.printrow = me.printrow.bind(me,from);
+    respond.raw = raw;
 
     
     args.unshift(respond);
     args.unshift(from);
 
+
     me._pending[from] = (me.pending[from]||[]).concat();
     me.pending[from] = [];
-    command.action.apply(this,args);
+
+    var doCmd = function() {
+      command.action.apply(this,args);
+    }
+    
+    var allow = command.allow;
+    if (command.allow && command.allow!='all') {
+      if (typeof command.allow == 'function') allow = command.allow.apply(this,args);
+      this.account(from,respond,function(a) {
+        if (!a) return respond(from+', please login with NickServ first.');
+        respond.account = a;
+        if (allow == 'master' && a != me.config.master) return respond('Only my master can do that. You are not my master.');
+        if (Array.isArray(allow) && a != me.config.master && allow.indexOf(a)<0) return respond('You are not allowed to do that.');
+        doCmd();
+      })
+    } else {
+      doCmd();
+    }
+
     return true;
   },
   usage:function(cmd) {
     var command = this.commands[cmd];
     return command 
     ? command.reverse().map(function(n){
-       return n.usage + ' ' + n.help
+       return n.usage + ' - ' + n.help
       })
       .join(' | ')
     : 'unknown command '+cmd;
@@ -337,4 +392,26 @@ module.exports = {
   wgetjson: function(url,params,cb) {
     this._wget(url,params,cb,{json:true});
   },
+  account: function (nick,respond,cb) {
+    if (cloaks[respond.raw.host]) return cb(cloaks[respond.raw.host]);
+    
+    if (accs[nick]) return respond('Still verifying your nick for the last command,' + nick + '. Please try again in a few moments.');
+    accs[nick] = cb;
+    if (respond.raw.host && respond.raw.host.indexOf('/')+1) pending_cloaks[nick] = respond.raw.host;
+    
+    timeouts[nick] = setTimeout(function() {
+      respond('Timed out while trying to verify your account, '+nick+'. Please try again in a few moments.')
+      delete pending_cloaks[nick];
+      delete accs[nick];
+      delete timeouts[nick];
+    },5000)
+    this.say('NickServ','ACC '+nick+' *');
+  }
 }
+
+  
+var accs = {};
+var timeouts = {};
+var cloaks = {};
+var pending_cloaks = {};
+

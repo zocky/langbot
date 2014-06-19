@@ -21,6 +21,7 @@ exports.setup = function(bot) {
       respond.print("I'm a wcbot for " + bot.config.channel,' running for '+uptime+' |');
       respond.print(bot.config.master ? 'My master is '+bot.config.master + '.': 'I have no master.', "|");
       respond.print("If you kick me, I won't come back unless you /invite me.",'|');
+      respond.print("Source at https://github.com/zocky/langbot/tree/footbot/",'|');
       respond.flush();
     }
   })

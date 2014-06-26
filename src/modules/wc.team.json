@@ -6,49 +6,49 @@
 			"group_id": 1,
 			"code": "BRA",
 			"name": "Brazil",
-			"flag": "\u00038,3 ◆ \u000f"
+			"flag": "\u00033,3█\u00038,3◆\u00033,3█\u000f"
 		},
 		{
 			"id": 2,
 			"group_id": 1,
 			"code": "CRO",
 			"name": "Croatia",
-			"flag": "\u00034,4 \u00034,0⚄\u00034,2 \u000f"
+			"flag": "\u00034,4█\u00034,0⚄\u00032,2█\u000f"
 		},
 		{
 			"id": 3,
 			"group_id": 1,
 			"code": "MEX",
 			"name": "Mexico",
-			"flag": "\u00030,3 \u000314,0@\u00030,4 \u000f"
+			"flag": "\u0002\u00033,3█\u00038,0@\u00034,4█\u000f"
 		},
 		{
 			"id": 4,
 			"group_id": 1,
 			"code": "CMR",
 			"name": "Cameroon",
-			"flag": "\u00038,3 \u00038,4★\u00038,8 \u000f"
+			"flag": "\u00033,3█\u00038,4★\u00038,8█\u000f"
 		},
 		{
 			"id": 5,
 			"group_id": 2,
 			"code": "ESP",
 			"name": "Spain",
-			"flag": "\u00035,8▌ ▐\u000f"
+			"flag": "\u00034,8▌\u00038,8█\u00034,8▐\u000f"
 		},
 		{
 			"id": 6,
 			"group_id": 2,
 			"code": "NED",
 			"name": "Netherlands",
-			"flag": "\u00030,4 \u00030,0 \u00030,2 \u000f"			
+			"flag": "\u00034,4█\u00030,0█\u00032,2█\u000f"			
 		},
 		{
 			"id": 7,
 			"group_id": 2,
 			"code": "CHI",
 			"name": "Chile",
-			"flag": "\u00035,2▄\u00035,0▄▄\u000f"
+			"flag": "\u00034,2▄\u00034,0▄▄\u000f"
 		},
 		{
 			"id": 8,
@@ -62,7 +62,7 @@
 			"group_id": 3,
 			"code": "COL",
 			"name": "Colombia",
-			"flag": "\u00030,8 \u00030,2 \u00030,4 \u000f"
+			"flag": "\u00038,8█\u00032,2█\u00034,4█\u000f"
 		},
 		{
 			"id": 10,
@@ -76,28 +76,28 @@
 			"group_id": 3,
 			"code": "CIV",
 			"name": "Ivory Coast",
-			"flag": "\u00030,8 \u00030,0 \u00030,3 \u000f"
+			"flag": "\u00038,8█\u00030,0█\u00033,3█\u000f"
 		},
 		{
 			"id": 12,
 			"group_id": 3,
 			"code": "JPN",
 			"name": "Japan",
-			"flag": "\u00034,0 ● \u000f"
+			"flag": "\u00030,0█\u00034,0●\u00030,0█\u000f"
 		},
 		{
 			"id": 13,
 			"group_id": 4,
 			"code": "URU",
 			"name": "Uruguay",
-			"flag": "\u00038,0✸\u000312▌▌\u000f"
+			"flag": "\u00038,0✸\u00032,0▌▌\u000f"
 		},
 		{
 			"id": 14,
 			"group_id": 4,
 			"code": "CRC",
 			"name": "Costa Rica",
-			"flag": "\u00032,0▌\u00030,4 \u00032,0▐\u000f"
+			"flag": "\u00032,0▌\u00034,4█\u00032,0▐\u000f"
 
 		},
 		{
@@ -112,84 +112,84 @@
 			"group_id": 4,
 			"code": "ITA",
 			"name": "Italy",
-			"flag": "\u00030,3 \u00030,0 \u00030,4 \u000f"
+			"flag": "\u00033,3█\u00030,0█\u00034,4█\u000f"
 		},
 		{
 			"id": 17,
 			"group_id": 5,
 			"code": "SUI",
 			"name": "Switzerland",
-			"flag": "\u00030,4 ✚ \u000f"
+			"flag": "\u00034,4█\u00030,4✚\u00034,4█\u000f"
 		},
 		{
 			"id": 18,
 			"group_id": 5,
 			"code": "ECU",
 			"name": "Ecuador",
-			"flag": "\u00038,8 \u00038,2◗\u00038,4 \u000f"
+			"flag": "\u00038,8█\u00038,2◗\u00034,4█\u000f"
 		},
 		{
 			"id": 19,
 			"group_id": 5,
 			"code": "FRA",
 			"name": "France",
-			"flag": "\u00030,2 \u00030,0 \u00030,4 \u000f"
+			"flag": "\u00032,2█\u00030,0█\u00034,4█\u000f"
 		},
 		{
 			"id": 20,
 			"group_id": 5,
 			"code": "HON",
 			"name": "Honduras",
-			"flag": "\u00030,12 \u000312,0⁙\u00030,12 \u000f"
+			"flag": "\u00032,2█\u00032,0⁙\u00032,2█\u000f"
 		},
 		{
 			"id": 21,
 			"group_id": 6,
 			"code": "ARG",
 			"name": "Argentina",
-			"flag": "\u00038,12 \u00038,0✸\u00038,12 \u000f"
+			"flag": "\u000312,12█\u00038,0✸\u000312,12█\u000f"
 		},
 		{
 			"id": 22,
 			"group_id": 6,
 			"code": "BIH",
 			"name": "Bosnia and Herzegovina",
-			"flag": "\u00038,2 ◥ \u000f"
+			"flag": "\u00032,2█\u00038,2◥\u00032,2█\u000f"
 		},
 		{
 			"id": 23,
 			"group_id": 6,
 			"code": "IRN",
 			"name": "Iran",
-			"flag": "\u00034,3 \u00034,0☫\u00034,4 \u000f"			
+			"flag": "\u00033,3█\u00034,0☫\u00034,4█\u000f"			
 		},
 		{
 			"id": 24,
 			"group_id": 6,
 			"code": "NGA",
 			"name": "Nigeria",
-			"flag": "\u00030,3 \u00030,0 \u00030,3 \u000f"
+			"flag": "\u00033,3█\u00030,0█\u00033,3█\u000f"
 		},
 		{
 			"id": 25,
 			"group_id": 7,
 			"code": "GER",
 			"name": "Germany",
-			"flag": "\u00030,1 \u00030,4 \u00030,8 \u000f"
+			"flag": "\u00031,1█\u00034,4█\u00038,8█\u000f"
 		},
 		{
 			"id": 26,
 			"group_id": 7,
 			"code": "POR",
 			"name": "Portugal",
-  		"flag": "\u00038,3◖\u00038,5◗ \u000f"
+  		"flag": "\u00038,3◖\u00038,4◗\u00034,4█\u000f"
 		},
 		{
 			"id": 27,
 			"group_id": 7,
 			"code": "GHA",
 			"name": "Ghana",
-  		"flag": "\u00031,4 \u00031,8★\u00031,3 \u000f"
+  		"flag": "\u00034,4█\u00031,8★\u00033,3█\u000f"
 		},
 		{
 			"id": 28,
@@ -203,21 +203,21 @@
 			"group_id": 8,
 			"code": "BEL",
 			"name": "Belgium",
-			"flag": "\u00030,1 \u00030,8 \u00030,4 \u000f"
+			"flag": "\u00031,1█\u00038,8█\u00034,4█\u000f"
 		},
 		{
 			"id": 30,
 			"group_id": 8,
 			"code": "ALG",
 			"name": "Algeria",
-  		"flag": "\u00035,3 ❨\u00035,0★ \u000f"
+  		"flag": "\u0002\u00039,9█\u00034,9☾\u0002\u00034,0★\u00030,0█\u000f"
 		},
 		{
 			"id": 31,
 			"group_id": 8,
 			"code": "RUS",
 			"name": "Russia",
-			"flag": "\u00030,0 \u00030,12 \u00030,4 \u000f"
+			"flag": "\u00030,0█\u000312,12█\u00034,4█\u000f"
 		},
 		{
 			"id": 32,

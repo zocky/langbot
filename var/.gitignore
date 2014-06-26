@@ -1,2 +1,2 @@
-*.json
-*.pid
+^.gitignore
+*

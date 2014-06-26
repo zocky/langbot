@@ -193,7 +193,7 @@ module.exports = {
   _print: function(nick,text) {
 
     text = String(text).clean().leftBytes(480);
-    var pending = this.pending[nick];
+    var pending = this.pending[nick] || [];
     switch(pending[pending.length-1]) {
     case '':
       break;
@@ -328,10 +328,10 @@ module.exports = {
     }
     
     var allow = command.allow;
-    if (command.allow && command.allow!='all') {
+    if (command.allow) {
       if (typeof command.allow == 'function') allow = command.allow.apply(this,args);
       this.account(from,respond,function(a) {
-        if (!a) return respond(from+', please login with NickServ first.');
+        if (!a && command.allow!='all') return respond(from+', please login with NickServ first.');
         respond.account = a;
         if (allow == 'master' && a != me.config.master) return respond('Only my master can do that. You are not my master.');
         if (Array.isArray(allow) && a != me.config.master && allow.indexOf(a)<0) return respond('You are not allowed to do that.');
@@ -400,11 +400,11 @@ module.exports = {
     if (respond.raw.host && respond.raw.host.indexOf('/')+1) pending_cloaks[nick] = respond.raw.host;
     
     timeouts[nick] = setTimeout(function() {
-      respond('Timed out while trying to verify your account, '+nick+'. Please try again in a few moments.')
+      respond('Timed out while trying to verify your account with NickServ, '+nick+'. Please try again in a few moments.')
       delete pending_cloaks[nick];
       delete accs[nick];
       delete timeouts[nick];
-    },5000)
+    },10000)
     this.say('NickServ','ACC '+nick+' *');
   }
 }

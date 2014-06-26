@@ -6,7 +6,7 @@ exports.setup = function(bot) {
     help: "HELP! I need somebody",
     action: function(from,respond,text,cmd) {
       if (!cmd) return respond.flush(
-          'I know ' + Object.keys(bot.commands).join(', ')
+          'I know ' + Object.keys(bot.commands).reverse().sort().join(', ')
         );
       if (!bot.commands[cmd]) return respond ('unknown command '+cmd +', try .help');
       respond.flush(bot.usage(cmd));

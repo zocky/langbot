@@ -26,7 +26,7 @@ Use `.help` and `.help [command]` for more commands.
 
 You can predict scores for matches up to their kick-off time. Predictions are private until the match starts.
 
-Three points are awarded for guessing the exact result, and one point is awarded for guessing the winner of the match. 
+Three points are awarded for guessing the exact result, and one point is awarded for guessing only the winner of the match. 
 
 If two or more players have the same number of points, they are further ordered by their average "goal differential". This is
 defined as `abs(predicted_1-actual_1)+abs(predicted_2-actual_2)`, for predicted and actual scores of teams 1 and 2.

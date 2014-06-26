@@ -56,6 +56,7 @@ These can only be used by the bot's admins.
 - `.tbd` - list matches for which at least one team hasn't been declared, with labels for undeclared teams
 - `.tbd [label] [team_code]` - declare a tbd team
 - `.tbd [label] remove` - remove a declared tbd team
+
 ### Admin admin
 - `.admins` - list the bot's admins
 - `.admins add [nick]` - add an admin

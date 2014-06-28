@@ -52,7 +52,8 @@ exports.setup = function(bot,conf) {
       announce: function (n)   {
       
         if ((n.score1 && n.score2) !== undefined) {
-          return n.descf + ' FT';
+          if (moment().zone('-03:00').isSame(n.moment,'day')) return n.descf + ' FT';
+          return n.descf;
         } 
         var cur = currentMatches[n.id];
         if (cur) {
@@ -477,6 +478,7 @@ exports.setup = function(bot,conf) {
         score1: score1|0,
         score2: score2|0
       }
+  
       n.score1 = score1|0;
       n.score2 = score2|0;
       
@@ -485,6 +487,36 @@ exports.setup = function(bot,conf) {
       respond.flush('Recorded ' + n.desc);
     }
   })
+
+  bot.addCommand('record', {
+    usage: '.record [game] [score1] [score2] [penalties1] [penalties2]',
+    help: "record game result",
+    args: /^(\d\d?)\W+(\d\d?)\W+(\d\d?)\W+(\d\d?)\W+(\d\d?)$/,
+    allow: function() {
+      return bot.state.wc.admins;
+    },
+    action: function(from,respond,id,score1,score2,penalties1,penalties2) {
+      var n = data.matches[id-1];
+      
+      if (!n) return respond ('no such game '+id);
+      
+      bot.state.wc.results[id] = {
+        score1: score1|0,
+        score2: score2|0,
+        penalties1: penalties1|0,
+        penalties2: penalties2|0,
+      }
+      n.score1 = score1|0;
+      n.score2 = score2|0;
+      n.penalties1 = penalties1|0;
+      n.penalties2 = penalties1|0;
+      
+      bot.save();
+      crunchData(bot);
+      respond.flush('Recorded ' + n.desc);
+    }
+  })
+
 
   bot.addCommand('tbd', {
     usage: '.tbd',
@@ -879,7 +911,7 @@ exports.setup = function(bot,conf) {
         filter: function(n) {
           return n.stage == 0 && n.team1.group_id == group.id;
         },
-        sort: 'time_asc',
+        sort: 'time_desc',
         map: 'announce'
       });
     }
@@ -887,7 +919,7 @@ exports.setup = function(bot,conf) {
 
   bot.addCommand('team', {
     usage: '.team [code] games',
-    help: "show tem games",
+    help: "show team games",
     args: /^(\w\w\w)\s+games$/,
     action: function(from,respond,code) {
       var team = data.codes[code.toUpperCase()];
@@ -896,7 +928,7 @@ exports.setup = function(bot,conf) {
         filter: function(n) {
           return n.team1==team || n.team2 == team;
         },
-        sort: 'time_asc',
+        sort: 'time_desc',
         map: 'announce'
       });
     }
@@ -1041,11 +1073,18 @@ exports.setup = function(bot,conf) {
       bot.say(e.time.replace(/^(45|90)(\d)/,'$1+$2')+"' "+cur.team2.flag+' '+e.player+' '+(showEvent[e.type_of_event]||e.type_of_event));
       cur.reported2++;
     }
-    if(cur.score1!= obj.home_team.goals || cur.score2 != obj.away_team.goals) {
+    if(cur.score1!= obj.home_team.goals || cur.score2 != obj.away_team.goals || cur.penalties1!= obj.home_team.penalties || cur.penalties2 != obj.away_team.penalties ) {
       cur.score1 = obj.home_team.goals;
       cur.score2 = obj.away_team.goals;
-      bot.say(cur.team1.flag +' ' + cur.team1.code + ' ' + cur.score1 + '-' +cur.score2 + ' ' + cur.team2.code+' '+cur.team2.flag);
       
+      if ('penalties' in obj.home_team) {
+        cur.penalties1 = obj.home_team.penalties|0;
+        cur.penalties2 = obj.away_team.penalties|0;
+        bot.say(cur.team1.flag +' ' + cur.team1.code + ' ' + cur.score1 + ' ('+cur.penalties1+'-' +cur.penalties2+') ' +cur.score2 + ' ' + cur.team2.code+' '+cur.team2.flag);
+        
+      } else {
+        bot.say(cur.team1.flag +' ' + cur.team1.code + ' ' + cur.score1 + '-' +cur.score2 + ' ' + cur.team2.code+' '+cur.team2.flag);
+      }    
       var g = groupPredicts(cur).grouped.filter(function(n) {
         return n.score1>=cur.score1 && n.score2>=cur.score2;
       })
@@ -1152,11 +1191,15 @@ exports.setup = function(bot,conf) {
           if (n.status == 'completed') {
             m.score1 = n.home_team.goals;
             m.score2 = n.away_team.goals;
+            if ('penalties' in n.home_team) {
+              m.penalties1 = n.home_team.penalties;
+              m.penalties2 = n.away_team.penalties;
+            }
           } else if (n.status == 'in progress') {
             //m.partial1 = n.home_team.goals;
             //m.partial2 = n.away_team.goals;
           }
-          if (n.status=='completed') {
+          if (n.status!='future') {
             var playerEventMap = {
               'yellow-card': 'yc yc1',
               'yellow-card-second': 'yc yc2 rc',
@@ -1170,12 +1213,15 @@ exports.setup = function(bot,conf) {
             function playerEvent(e,team1,team2) {
               var m = playerEventMap[e.type_of_event];
               if (m) {
-                var pid = team1.id +'|'+e.player;
+                var name = e.player.toLowerCase().replace(/((^|\s).)/g, function(m,m1) {
+                  return m1.toUpperCase();
+                })
+                var pid = team1.id +'|'+name;
                 if (!footballers[pid]) {
                   footballers[pid] = {
                     team:team1,
                     team_id:team1.id,
-                    name: e.player,
+                    name: name,
                     stat: {
                     },
                   }
@@ -1328,6 +1374,10 @@ function crunchData(bot) {
     if (res) {
       n.score1 = res.score1 = res.score1|0;
       n.score2 = res.score2 = res.score2|0;
+      if ('penalties1' in res) {
+        n.penalties1 = res.penalties1 = res.penalties1|0;
+        n.penalties2 = res.penalties2 = res.penalties2|0;
+      }
     }
 
     if (n.tbd1) {
@@ -1353,9 +1403,15 @@ function crunchData(bot) {
     n.idf = '\u0002'+n.id+' \u0002';
   
     if (n.score1 !==undefined && n.score2 !== undefined) {
-      n.descs = n.team1.code+' ' + n.score1+ '-' +n.score2+' '+n.team2.code;
-      n.desc = '('+n.id+') '+ n.descs;
-      n.descf = n.idf + n.team1.descl+' \u0002'+n.score1+'-'+n.score2+'\u0002 '+n.team2.descr;
+      if ('penalties1' in n) {
+        n.descs = n.team1.code+' ' + n.score1+ '-' +n.score2+' '+n.team2.code;
+        n.desc = '('+n.id+') '+ n.descs;
+        n.descf = n.idf + n.team1.descl+' \u0002'+n.score1+' ('+n.penalties1+'-'+n.penalties2+') '+n.score2+'\u0002 '+n.team2.descr;
+      } else {
+        n.descs = n.team1.code+' ' + n.score1+ '-' +n.score2+' '+n.team2.code;
+        n.desc = '('+n.id+') '+ n.descs;
+        n.descf = n.idf + n.team1.descl+' \u0002'+n.score1+'-'+n.score2+'\u0002 '+n.team2.descr;
+      }
       if (n.stage == 0) {
         scoreGame(n.team1,n.team2,n.score1,n.score2);
       }

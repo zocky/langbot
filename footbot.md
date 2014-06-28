@@ -52,6 +52,7 @@ These can only be used by the bot's admins.
 ### Recording scores
 - `.record` - list finished but unscored matches
 - `.record [match_id] [score1] [score2]` - record the score for a match
+- `.record [match_id] [score1] [score2] [penalties1] [penalties2]` - record the score for a match that ended with a penalty shootout
 - `.record [match_id] remove` - remove the score for a match
 - `.tbd` - list matches for which at least one team hasn't been declared, with labels for undeclared teams
 - `.tbd [label] [team_code]` - declare a tbd team

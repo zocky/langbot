@@ -72,6 +72,7 @@ exports.setup = function(bot,conf) {
   }
 
   function listMatches(respond,opt) {
+    console.log("List Matches");
     var ret = data.matches.concat();
     if (opt.when) ret = ret.filter(typeof opt.when == 'function' ? opt.when : listOpt.when[opt.when]);
     if (opt.filter) ret = ret.filter(typeof opt.filter == 'function' ? opt.filter : listOpt.filter[opt.filter]);
@@ -164,6 +165,7 @@ exports.setup = function(bot,conf) {
         })
       }
       if (!ret.length) return respond ('nothing found');
+      console.log("Printing Team Flags: " + q.toUpperCase());
       ret.forEach(function(n,i,a) {
         respond.print(n.flag + ' ' +n.code+' '+n.name +', group '+String.fromCharCode(64+n.group_id));
         
@@ -217,6 +219,7 @@ exports.setup = function(bot,conf) {
 
       var sep = '\u000315|\u000f ';
       if (!ret.length) return respond ('nothing found');
+      console.log("Player Stats: "+q);
       ret.forEach(function(n,i,a) {
         respond.print(n.team.flag + ' ' +n.team.code+' '+n.name);
         if (a.length==1) {
@@ -664,7 +667,7 @@ exports.setup = function(bot,conf) {
     action: function(from,respond) {
       data.playerList
       .filter(function(n){
-        return n.gp>4;
+        return n.gp>9;
       })
       .sort(function(a,b) {
         return a.gd/a.gp - b.gd/b.gp;
@@ -683,7 +686,7 @@ exports.setup = function(bot,conf) {
     action: function(from,respond) {
       data.playerList
       .filter(function(n){
-        return n.gp>4;
+        return n.gp>9;
       })
       .sort(function(a,b) {
         return b.pt/b.gp - a.pt/a.gp;

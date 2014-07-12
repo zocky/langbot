@@ -8,7 +8,7 @@ function sizeof(s) {
 var data;
 
 exports.setup = function(bot,conf) {
-  if (!bot.state.wc) throw('failed to load state, wtf');
+  // if (!bot.state.wc) throw('failed to load state, wtf');
   bot.state.wc = bot.state.wc || {};
   bot.state.wc.results = bot.state.wc.results || {};
   bot.state.wc.tbd = bot.state.wc.tbd || {};

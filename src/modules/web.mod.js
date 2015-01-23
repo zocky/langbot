@@ -71,17 +71,15 @@ exports.setup = function(bot) {
     args: /^(.+)$/,
     action: function(from,respond,text) {
       if (!text) return respond ('You gave me zero length input.');
-      bot.wget('http://www.urbandictionary.com/define.php', {
+      bot.wgetjson('http://api.urbandictionary.com/v0/define', {
         term:text
-      }, function(error,response,body,url) {
-        if (error) return respond('error',String(error));
+      }, function(error,response,obj) {
+        if (error || !obj.list) return respond('error',String(error));
         
-        var res = body.clean().split(/<div class='word'[^>]*>/)
-        .extract(/^(.*?)<\/div>.*?<div class='meaning'>(.*?)<\/div>/i, '$1: $2')
-        .filter(Boolean).map(function(n) {
-          return String(n).htmlstrip();
-        });
-        respond.flushbr(res.length ? res : 'not found');
+        obj.list.forEach(function(n) {
+          respond.printrow(n.definition, n.example, n.permalink);
+        })
+        respond.flush();
       });
     }
   })

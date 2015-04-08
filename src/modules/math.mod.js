@@ -1,4 +1,4 @@
-var math = require('mathjs')();
+var math = require('mathjs');
 
 exports.setup = function(bot) {
   bot.addCommand('c', {

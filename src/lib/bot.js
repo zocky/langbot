@@ -330,6 +330,9 @@ module.exports = {
   wpost: function(url,params,cb) {
     this._wget(url,{},cb,{method:'POST',form:params});
   },
+  wpostjson: function(url,params,cb) {
+    this._wget(url,{},cb,{method:'POST',form:params,json:true});
+  },
   wget: function(url,params,cb) {
     this._wget(url,params,cb,{});
   },

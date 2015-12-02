@@ -21,6 +21,26 @@ exports.setup = function(bot) {
     }
   })
 
+
+  bot.addCommand('ll', {
+    usage: '.ll [page title]',
+    help: 'Lookup language links in English Wikipedia ...',
+    args: /(.+)$/,
+    action: function(from,respond,text) {
+      wikipedia_ll    (from,respond,'en',text)
+    }
+  })
+
+  bot.addCommand('ll', {
+    usage: '.ll [lang]:[page title]',
+    help: '... or a Wikipedia in another language. ',
+    args: /^([\w\-]+): ?(.+)$/,
+    action: function(from,respond,lang,text) {
+      wikipedia_ll(from,respond,lang,text)
+    }
+  })
+
+
   bot.addCommand('w', {
     usage: '.w [word]',
     help: 'Get definitions from Wiktionary ...',
@@ -46,7 +66,7 @@ exports.setup = function(bot) {
       languages(from,respond,text);  
     }
   });
-
+  
   function wikipedia(from,respond,lang,text) {
     if (!data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
   
@@ -64,6 +84,59 @@ exports.setup = function(bot) {
         ret.push([n.title,n.snippet.htmlstrip(),'http://'+lang+'.wikipedia.org/wiki/'+n.title.replace(/ /g,'_').replace(/[#?&%]/g,function(f) { return escape(f) })]);
       });
       for (var i in ret) respond.printrow(ret[i][0],ret[i][1],ret[i][2]);
+      respond.flush();
+    });
+  };
+
+  function checkRTL(s){           
+      var ltrChars    = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
+          rtlChars    = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+          rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
+
+      return rtlDirCheck.test(s);
+  };
+
+
+  function wikipedia_ll(from,respond,lang,text) {
+    if (!data.languages[lang]) return respond ('Unknown language ' + lang + ', try .lang');
+  
+    bot.wgetjson('http://'+lang+'.wikipedia.org/w/api.php?action=query&format=json', {
+      titles: text,
+      prop: 'langlinks',
+      lllimit: 500
+    }, function(error,response,obj) {
+      if (error) return respond('error: '+ String(error));
+      //try { var obj = JSON.parse(body); } catch (e) { return respond('error: ' + String(e)); }
+      if (!obj.query || !obj.query.pages) {
+        return respond('nothing found');
+      }
+      var page = obj.query.pages[Object.keys(obj.query.pages)[0]];
+      
+      if (!page || !page.langlinks || !page.langlinks.length) {
+        return respond('nothing found');
+      }
+      
+      var words = {};
+      page.langlinks.sort(function(a,b) {
+        return a.lang > b.lang && 1 || a.lang < b.lang && -1 || 0;
+      })
+      .forEach(function(ll) {
+        var w = ll['*'];
+        var word = words[w] = words[w] || {word:w,langs:[]};
+        word.langs.push(ll.lang);
+      })
+      var out = [];
+      for (var w in words) out.push(words[w]);
+      
+      out
+      .sort(function(a,b) {
+        return b.langs.length - a.langs.length;
+      })
+      .forEach(function(word) {
+        var w = word.word;
+        if (checkRTL(w)) w = "\u200e\u200f"+w+"\u200f\u200e";
+        respond.print(w,'<nobr>','('+word.langs.join(' ')+')');
+      })
       respond.flush();
     });
   };

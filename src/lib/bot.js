@@ -231,7 +231,7 @@ module.exports = {
         pending.shift();
         break;
       }
-      if (out.join(' ').length + pending[0].length + 1 > 430) break;
+      if (out.join(' ').lengthBytes + pending[0].lengthBytes + 1 > 430) break;
       out.push(pending.shift());
     }
     var text = out.join(' ');

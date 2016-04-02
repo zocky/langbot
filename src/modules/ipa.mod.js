@@ -115,7 +115,7 @@ exports.setup = function(bot) {
         if (error) return respond('error',String(error));
         var oed = body.extract(/<span class="pr">\\(.*?)\\<\/span>/i,'$1');
         if (!oed) return respond('nothing found');
-        var ipa = x2ipa('respelling',oed);
+        var ipa = x2ipa('mw',oed);
         var lcp = ipa2x('locaphone',ipa);
         var xsampa = ipa2x('xsampa',ipa);
         respond.flush('ipa:'+ipa,' x-sampa:'+xsampa,'lcp:'+lcp);

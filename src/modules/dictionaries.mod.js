@@ -9,7 +9,7 @@ exports.setup = function(bot) {
         term:text
       }, function(error,response,body,url) {
         if (error) return respond('error',String(error));
-        var res = body.clean().extract(/<dt[^>]*>.*?<\/dd>/gi,'$&')
+        var res = body.clean().extract(/<h1 class="word__name[^>]*>.*?<\/section>/gi,'$&')
         .filter(Boolean);
         if (!res.length) return respond('not found');;
         res.forEach(function(n) {

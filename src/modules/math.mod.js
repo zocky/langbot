@@ -1,6 +1,8 @@
-var math = require('mathjs');
+
+// var math = require('mathjs');
 
 exports.setup = function(bot) {
+  return;
   bot.addCommand('c', {
     usage: '.c [expression]',
     help: 'mathjs calculator',
@@ -15,3 +17,4 @@ exports.setup = function(bot) {
     }
   })
 }
+
